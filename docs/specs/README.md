@@ -62,3 +62,19 @@ Duas regras, verificáveis no code review:
 2. Conventional Commits em português citando o requisito: `feat(funil): mover etapa (RF09)`.
 3. PR para a `main` com o checklist de auditoria da spec preenchido.
 4. Revisão cruzada: 01↔04 e 02↔03 revisam um ao outro.
+
+## Trabalho em paralelo (ninguém espera ninguém)
+
+A `main` contém um **esqueleto de contratos**: enums corrigidos, `PageResponse`, handler
+de erros, o evento `OportunidadeFechadaEvent` e stubs dos pontos de contato
+(`EscopoCarteira`, `ClienteService.buscarAtivo`, `OportunidadeService.listarDoCliente`
+etc., lançando `UnsupportedOperationException`). Com isso:
+
+1. **Compila sempre**: o método do módulo vizinho já existe, mesmo sem lógica.
+2. **Testes não esperam**: unitário mocka o service vizinho (Mockito); o RF30 se testa
+   publicando o evento na mão; segurança se simula com
+   `@WithMockUser(authorities = "CLIENTE_CRIAR")` do spring-security-test, sem o JWT pronto.
+3. **Cada dev substitui o próprio stub** pela implementação real no seu PR. Como cada um
+   mexe só nos seus arquivos, não há conflito de merge.
+4. Única ordem recomendada: **mergear a SPEC-01 primeiro**, para o teste manual via
+   Postman ter login de verdade. Isso ordena os merges, não o desenvolvimento.

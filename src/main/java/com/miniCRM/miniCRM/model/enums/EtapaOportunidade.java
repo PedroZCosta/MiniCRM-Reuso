@@ -1,10 +1,14 @@
 package com.miniCRM.miniCRM.model.enums;
 
+// RF08: colunas do funil Prospecção, Contato, Proposta e Fechado (= GANHA ou PERDIDA)
 public enum EtapaOportunidade {
     PROSPECCAO,
-    QUALIFICACAO,
+    CONTATO,
     PROPOSTA,
-    NEGOCIACAO,
     GANHA,
-    PERDIDA
+    PERDIDA;
+
+    public boolean fechada() {
+        return this == GANHA || this == PERDIDA;
+    }
 }
