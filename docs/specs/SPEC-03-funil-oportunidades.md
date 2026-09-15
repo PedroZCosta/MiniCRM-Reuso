@@ -1,6 +1,6 @@
 # SPEC-03 · Funil de Oportunidades
 
-**Responsável:** ______
+**Responsável:** Leandro Canha
 **Requisitos:** RF07, RF08, RF09, RF19, RF29
 **Patterns desta spec:** o lado publicador do Observer (`OportunidadeFechadaEvent`) e a filha `SeedMotivosPerda` do Template Method `SeedBase` (SPEC-01 §7)
 
