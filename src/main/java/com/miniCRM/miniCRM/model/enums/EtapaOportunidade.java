@@ -8,6 +8,11 @@ public enum EtapaOportunidade {
     GANHA,
     PERDIDA;
 
+    public boolean podeIrPara(EtapaOportunidade alvo) {
+        if (this.fechada()) return false;
+        return alvo != this;
+    }
+
     public boolean fechada() {
         return this == GANHA || this == PERDIDA;
     }
