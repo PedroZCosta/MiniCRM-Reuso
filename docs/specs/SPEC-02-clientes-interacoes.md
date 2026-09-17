@@ -1,6 +1,6 @@
 # SPEC-02 · Clientes e Interações
 
-**Responsável:** ______
+**Responsável:** Lincoln Brunkow Neto 
 **Requisitos:** RF03, RF04, RF05, RF06, RF16, RF26, RF30 · UC03, UC06, UC08, UC09
 **Design patterns:** Specification/Composite (busca dinâmica), Observer (lado consumidor: status automático do cliente)
 
