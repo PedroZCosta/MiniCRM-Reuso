@@ -31,6 +31,18 @@ public class ApiExceptionHandler {
                 .body(ErroResponse.de(409, "CONFLITO", e.getMessage()));
     }
 
+    @ExceptionHandler(CredencialInvalidaException.class)
+    public ResponseEntity<ErroResponse> credencialInvalida(CredencialInvalidaException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ErroResponse.de(401, "NAO_AUTORIZADO", e.getMessage()));
+    }
+
+    @ExceptionHandler(UsuarioBloqueadoException.class)
+    public ResponseEntity<ErroResponse> usuarioBloqueado(UsuarioBloqueadoException e) {
+        return ResponseEntity.status(HttpStatus.LOCKED)
+                .body(ErroResponse.de(423, "USUARIO_BLOQUEADO", e.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErroResponse> validacao(MethodArgumentNotValidException e) {
         List<String> detalhes = e.getBindingResult().getFieldErrors().stream()
@@ -39,4 +51,7 @@ public class ApiExceptionHandler {
         return ResponseEntity.badRequest().body(new ErroResponse(
                 LocalDateTime.now(), 400, "REQUISICAO_INVALIDA", "Campos inválidos", detalhes));
     }
+
+
+
 }
