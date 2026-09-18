@@ -25,11 +25,14 @@ public class AutenticacaoService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public AutenticacaoService(UsuarioRepository usuarioRepository,
-                               PasswordEncoder passwordEncoder) {
+                               PasswordEncoder passwordEncoder,
+                               JwtService jwtService) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     public LoginResponse login(LoginRequest request) {
@@ -50,8 +53,8 @@ public class AutenticacaoService {
         registrarAcessoValido(usuario);
 
         return new LoginResponse(
-                "TOKEN_PENDENTE",   // trocar pela chamada ao JwtService
-                LocalDateTime.now().plusHours(HORAS_TOKEN),
+                jwtService.gerarToken(usuario), // Gera o token
+                LocalDateTime.now().plusHours(HORAS_TOKEN), // Expira em 8 horas
                 UsuarioResponse.de(usuario));
     }
 

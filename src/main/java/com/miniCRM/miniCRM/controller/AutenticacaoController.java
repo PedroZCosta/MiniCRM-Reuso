@@ -3,6 +3,7 @@ package com.miniCRM.miniCRM.controller;
 import com.miniCRM.miniCRM.dto.auth.LoginRequest;
 import com.miniCRM.miniCRM.dto.auth.LoginResponse;
 import com.miniCRM.miniCRM.service.AutenticacaoService;
+import com.miniCRM.miniCRM.service.JwtService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,8 +16,11 @@ public class AutenticacaoController {
 
     private final AutenticacaoService autenticacaoService;
 
-    public AutenticacaoController(AutenticacaoService autenticacaoService) {
+    private final JwtService jwtService;
+
+    public AutenticacaoController(AutenticacaoService autenticacaoService, JwtService jwtService) {
         this.autenticacaoService = autenticacaoService;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/login")
