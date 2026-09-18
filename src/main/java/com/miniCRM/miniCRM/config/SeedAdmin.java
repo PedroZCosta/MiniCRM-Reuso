@@ -19,7 +19,7 @@ public class SeedAdmin extends SeedBase {
     public SeedAdmin(UsuarioRepository usuarioRepository,
                      PasswordEncoder passwordEncoder,
                      @Value("${SEED_ADMIN_EMAIL:admin@minicrm.com}") String email,
-                     @Value("${SEED_ADMIN_SENHA:Admin123}") String senha) {
+                     @Value("${SEED_ADMIN_SENHA:Admin102030@}") String senha) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.email = email;
