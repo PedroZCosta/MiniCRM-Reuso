@@ -2,6 +2,7 @@ package com.miniCRM.miniCRM.controller;
 
 import com.miniCRM.miniCRM.dto.auth.UsuarioCriarRequest;
 import com.miniCRM.miniCRM.dto.auth.UsuarioCriarResponse;
+import com.miniCRM.miniCRM.dto.auth.UsuarioPerfilRequest;
 import com.miniCRM.miniCRM.dto.auth.UsuarioResponse;
 import com.miniCRM.miniCRM.dto.auth.UsuarioAtualizarRequest;
 import com.miniCRM.miniCRM.model.Usuario;
@@ -41,6 +42,7 @@ public class UsuarioController {
 
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('USUARIO_EDITAR')")
     public UsuarioResponse editarUsuario(@PathVariable Integer id,
                                          @Valid @RequestBody UsuarioAtualizarRequest request) {
         return usuarioService.editarUsuario(id ,request);
@@ -52,6 +54,22 @@ public class UsuarioController {
     public void desativarUsuario(@PathVariable Integer id,
                                  @AuthenticationPrincipal Usuario logado) {
         usuarioService.desativarUsuario(id, logado);
+    }
+
+
+    @PatchMapping("/{id}/reativar")
+    @PreAuthorize("hasAuthority('USUARIO_DESATIVAR')")
+    public void reativarUsuario(@PathVariable Integer id) {
+        usuarioService.reativarUsuario(id);
+    }
+
+
+    @PatchMapping("/{id}/perfil")
+    @PreAuthorize("hasAuthority('USUARIO_ALTERAR_PERFIL')")
+    public UsuarioResponse alterarPerfil(@PathVariable Integer id,
+                                         @Valid @RequestBody UsuarioPerfilRequest request,
+                                         @AuthenticationPrincipal Usuario logado) {
+        return usuarioService.alterarPerfil(id, request, logado);
     }
 
 

@@ -83,7 +83,7 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário " + id + " não encontrado"));
 
-        // RN-07: o sistema nao pode ficar sem administrador.
+        // o sistema nao pode ficar sem administrador.
         if (usuario.getIdUsuario().equals(logado.getIdUsuario())) {
             throw new RegraNegocioException("ADMIN nao pode desativar a si mesmo");
         }
@@ -91,6 +91,33 @@ public class UsuarioService {
         usuario.setAtivo(false);
         usuarioRepository.save(usuario);
     }
+
+    public void reativarUsuario(Integer id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário " + id + " não encontrado"));
+        usuario.setAtivo(true);
+        usuarioRepository.save(usuario);
+    }
+
+    public UsuarioResponse alterarPerfil(Integer id, UsuarioPerfilRequest request, Usuario logado) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário " + id + " não encontrado"));
+
+        // ninguem muda o proprio perfil, senao o admin se rebaixa e perde o acesso.
+        if (usuario.getIdUsuario().equals(logado.getIdUsuario())) {
+            throw new RegraNegocioException("Nao e possivel alterar o proprio perfil");
+        }
+
+        usuario.setPerfil(request.perfil());
+
+        // so vendedor tem gerente; ao virar outra coisa, o vinculo deixa de valer.
+        if (request.perfil() != VENDEDOR) {
+            usuario.setGerente(null);
+        }
+
+        return UsuarioResponse.de(usuarioRepository.save(usuario));
+    }
+
 
 
 
