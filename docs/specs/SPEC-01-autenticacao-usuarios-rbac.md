@@ -1,137 +1,151 @@
-# SPEC-01 · Autenticação e Usuários
+# SPEC-01 · Autenticação, Usuários e RBAC
 
 **Responsável:** ______
-**Requisitos:** RF01, RF02, RF14, RF17, RF20, RF25, RF27, RF32, RF33 · RNF03
-**Patterns desta spec:** Singleton nº 1 (`EscopoCarteira`) e Template Method nº 1 (`SeedBase` + `SeedAdmin`)
+**Requisitos:** RF01, RF02, RF14, RF17, RF20, RF25, RF27, RF32, RF33 · RNF03 · UC01, UC02, UC05, UC14, UC15
+**Base:** Ativo 6 do PDF (Módulo de Segurança RBAC) adaptado ao nosso modelo (DEC-01 abaixo)
+**Design patterns:** Proxy (autorização via AOP), Adapter (envio de e-mail). De brinde, documentar: Chain of Responsibility (filter chain do Spring Security) e Singleton (beans).
 
-## 1. Entidades
+## DEC-01 · Conciliação entre o MER e o módulo RBAC
 
-`Usuario` e `TokenRecuperacao` (já criadas). Nenhuma tabela nova: permissões ficam em
-código (§5), como decisão de simplicidade desta fase.
+O PDF traz duas fontes: o MER (tabela `usuario` com coluna `perfil` ENUM, já implementado) e o
+Ativo 6 (users N:N roles N:N permissions). Decisão: **perfil único por usuário** (coluna
+`usuario.perfil`, coerente com o MER e RF02) + **permissões como dados** no espírito do Ativo 6:
 
-## 2. Endpoints públicos (sem token)
+```
+permissao        (id_permissao TINYINT PK, nome VARCHAR(60) UNIQUE)   -- ex.: CLIENTE_CRIAR
+perfil_permissao (perfil VARCHAR(20), id_permissao TINYINT)           -- PK composta
+```
 
-### `POST /api/v1/auth/login` (RF01)
+Isso preserva o mecanismo de reuso do Ativo 6 (mudar quem pode o quê = mexer em dados, sem
+recompilar; VP-1..VP-3) sem contrariar o modelo de dados entregue. Criar as entidades
+`Permissao` e `PerfilPermissao` neste módulo.
 
-Request `{ "email", "senha" }` → 200:
+## 1. Entidades sob responsabilidade deste módulo
+
+`Usuario`, `TokenRecuperacao` (já criadas) + `Permissao`, `PerfilPermissao` (novas).
+
+## 2. Endpoints
+
+Públicos (sem JWT): `POST /api/v1/auth/login`, `POST /api/v1/auth/recuperar-senha`, `POST /api/v1/auth/redefinir-senha`.
+
+### 2.1 `POST /api/v1/auth/login` (RF01, UC01)
+
+Request `{ "email": "...", "senha": "..." }` → 200:
 
 ```json
-{ "token": "eyJ...", "expiraEm": "2026-09-10T22:30:00",
-  "usuario": { "idUsuario": 1, "nome": "...", "perfil": "GERENTE", "trocarSenha": false } }
+{
+  "token": "eyJ...",
+  "expiraEm": "2026-09-10T22:30:00",
+  "usuario": { "idUsuario": 1, "nome": "...", "perfil": "GERENTE", "trocarSenha": false }
+}
 ```
 
-Erros: 401 credencial errada (mensagem genérica, sem dizer qual campo) · 423 bloqueado ·
-422 usuário desativado. Token JWT com claims `sub` (id), `perfil` e validade de **8 horas** (RF01).
+Erros: 401 credencial inválida (mensagem genérica, não revelar qual campo errou) · 423 bloqueado (RN-03) · 422 usuário desativado.
+Claims do JWT: `sub` = idUsuario, `perfil`, `permissoes` (array), `exp` = agora + 8h (RF01: sessão expira em 8h).
 
-### `POST /api/v1/auth/recuperar-senha` (RF17)
+### 2.2 Recuperação de senha (RF17, UC02, UC05)
 
-`{ "email" }` → **sempre 204** (não revela se o e-mail existe). Se existir: gera código de
-6 dígitos, grava em `token_recuperacao` (`codigoHash` = BCrypt do código, `expiraEm` =
-agora + 1h, `usado = false`) e envia por e-mail. Nesta fase o "envio" é uma interface
-`EmailService` com implementação que loga no console (a SMTP real entra depois, sem mudar
-quem chama).
+- `POST /auth/recuperar-senha` `{ "email" }` → **sempre 204** (não vaza se o e-mail existe). Se existir: gera código de 6 dígitos, grava `token_recuperacao` com `codigoHash` = BCrypt(código), `expiraEm` = agora + 1h, `usado=false`, e envia por `EmailService`.
+- `POST /auth/redefinir-senha` `{ "email", "codigo", "novaSenha" }` → 204. Erros: 422 código inválido/expirado/já usado. Marca `usado=true`, zera `tentativasLogin`, seta `trocarSenha=false`.
 
-### `POST /api/v1/auth/redefinir-senha` (RF17)
+### 2.3 `PUT /api/v1/auth/trocar-senha` (autenticado)
 
-`{ "email", "codigo", "novaSenha" }` → 204. Erros 422: código errado, expirado ou já
-usado. Sucesso: marca `usado = true`, zera tentativas, `trocarSenha = false`.
+`{ "senhaAtual", "novaSenha" }` → 204. Obrigatória quando `trocarSenha=true` (RF32): o filtro barra qualquer outra rota com 403 `SENHA_PROVISORIA` até a troca.
 
-## 3. Endpoints autenticados
+### 2.4 Gestão de usuários (RF14, RF20, RF25, RF27, UC14/15/16)
 
-| Endpoint | Quem pode | Regra |
+| Endpoint | Permissão | Regra |
 |----------|-----------|-------|
-| `PUT /api/v1/auth/trocar-senha` `{senhaAtual, novaSenha}` | todos | obrigatório enquanto `trocarSenha=true`: filtro barra o resto com 403 (RF32) |
-| `GET /api/v1/usuarios?page=&perfil=&ativo=` | ADMIN, GERENTE | GERENTE só vê os próprios vendedores |
-| `POST /api/v1/usuarios` | ADMIN, GERENTE | RN-05, RN-06 |
-| `PUT /api/v1/usuarios/{id}` | ADMIN | nome e e-mail |
-| `PATCH /api/v1/usuarios/{id}/desativar` | ADMIN | RN-07 (RF33) |
-| `PATCH /api/v1/usuarios/{id}/reativar` | ADMIN | RF20 |
-| `PATCH /api/v1/usuarios/{id}/perfil` | ADMIN | RF25 |
+| `GET /api/v1/usuarios?page=&perfil=&ativo=` | `USUARIO_VER` | ADMIN vê todos; GERENTE vê só seus vendedores |
+| `POST /api/v1/usuarios` | `USUARIO_CRIAR` | RN-05/RN-06 abaixo |
+| `PUT /api/v1/usuarios/{id}` | `USUARIO_EDITAR` | nome/e-mail |
+| `PATCH /api/v1/usuarios/{id}/desativar` | `USUARIO_DESATIVAR` | RN-07; publica `UsuarioDesativadoEvent` |
+| `PATCH /api/v1/usuarios/{id}/reativar` | `USUARIO_DESATIVAR` | RF20: restaura acesso e vínculos |
+| `PATCH /api/v1/usuarios/{id}/perfil` | `USUARIO_ALTERAR_PERFIL` | RF25, só ADMIN |
 
-Criação retorna senha provisória (uma única vez) e a conta nasce com `trocarSenha=true`.
-Nenhum response inclui `senhaHash`.
+Response de usuário nunca inclui `senhaHash`. Criação gera senha provisória (retornada uma única vez na resposta do POST) com `trocarSenha=true`.
 
-## 4. Regras de negócio
+## 3. Regras de negócio
 
-- **RN-01** Senha: mínimo 8 caracteres com letras e números (RF01). Vale para criar, trocar e redefinir.
-- **RN-02** E-mail único → 409.
-- **RN-03** 5 erros de login seguidos → `bloqueadoAte = agora + 15 min` → 423 durante o bloqueio. Acerto zera `tentativasLogin` e grava `ultimoAcesso`.
-- **RN-04** Código de recuperação: uso único, 1h; código novo invalida os anteriores não usados.
-- **RN-05** ADMIN cria ADMIN e GERENTE; GERENTE cria só VENDEDOR (RF14, RF27); VENDEDOR não cria ninguém.
-- **RN-06** Vendedor criado pelo gerente fica vinculado a ele para sempre: `usuario.gerente` = criador (RF27).
-- **RN-07** Desativar não apaga nada: `ativo=false`, clientes e oportunidades ficam no banco e aparecem para GERENTE/ADMIN com o vendedor sinalizado inativo, sem redistribuição automática (RF33). ADMIN não desativa a si mesmo.
-- **RN-08** Seed (RF32): se não houver ADMIN ativo, cria um com `SEED_ADMIN_EMAIL`/`SEED_ADMIN_SENHA` e `trocarSenha=true`.
+- **RN-01** Senha: mínimo 8 caracteres, ao menos 1 letra e 1 número (RF01). Validar em criação, redefinição e troca.
+- **RN-02** E-mail único em `usuario` (409 se duplicado).
+- **RN-03** Bloqueio: 5 tentativas erradas seguidas → `bloqueadoAte` = agora + 15 min; login durante bloqueio retorna 423 sem revalidar senha; sucesso zera `tentativasLogin` e grava `ultimoAcesso` (RF01).
+- **RN-04** Código de recuperação: uso único, 1h de validade; um novo código invalida os anteriores não usados do mesmo usuário (RF17).
+- **RN-05** ADMIN cria contas ADMIN e GERENTE. GERENTE cria somente VENDEDOR (RF14, RF27). VENDEDOR não cria ninguém.
+- **RN-06** Vendedor criado por gerente fica permanentemente vinculado a ele: `usuario.gerente` = criador, imutável (RF27).
+- **RN-07** Desativação não apaga nada: `ativo=false`, dados preservados, carteira sinalizada "sem responsável ativo", sem redistribuição automática (RF33). ADMIN não pode desativar a própria conta.
+- **RN-08** Seed do admin inicial (RF32): se não existe nenhum ADMIN ativo, cria com `SEED_ADMIN_EMAIL`/`SEED_ADMIN_SENHA` e `trocarSenha=true`.
 
-## 5. Permissões: simples, em código
+## 4. Pattern A · Proxy via AOP: `@RequiresPermission`
 
-Um enum e um mapa. Sem tabela, sem framework extra:
+Autorização fora do código de negócio, como no Ativo 6. O aspecto age como **Proxy de
+proteção**: intercepta a chamada e decide se o método real executa.
 
 ```java
-public enum Permissao {
-    CLIENTE_VER, CLIENTE_CRIAR, CLIENTE_EDITAR, CLIENTE_EXCLUIR, CLIENTE_TRANSFERIR,
-    INTERACAO_VER, INTERACAO_CRIAR,
-    OPORTUNIDADE_VER, OPORTUNIDADE_CRIAR, OPORTUNIDADE_EDITAR, OPORTUNIDADE_MOVER, OPORTUNIDADE_REABRIR,
-    TAREFA_VER, TAREFA_CRIAR, TAREFA_EDITAR, TAREFA_CONCLUIR,
-    NOTIFICACAO_VER, DASHBOARD_VER, RANKING_VER, RELATORIO_EXPORTAR,
-    USUARIO_VER, USUARIO_CRIAR, USUARIO_EDITAR, USUARIO_DESATIVAR, USUARIO_ALTERAR_PERFIL
-}
+@Target(ElementType.METHOD) @Retention(RetentionPolicy.RUNTIME)
+public @interface RequiresPermission { String value(); }
 
-public final class Permissoes {
-    public static Set<Permissao> doPerfil(PerfilUsuario perfil) {
-        return switch (perfil) {
-            case ADMIN    -> EnumSet.allOf(Permissao.class);
-            case GERENTE  -> /* tudo, menos USUARIO_EDITAR/DESATIVAR/ALTERAR_PERFIL */;
-            case VENDEDOR -> /* operacionais; SEM ranking, relatório, usuários e transferir (RF22, RF26, RF31) */;
-        };
-    }
+@Aspect @Component
+public class PermissionAspect {
+    // before: lê o JWT do contexto, compara value() com as claims 'permissoes'
+    // nega -> SemPermissaoException (403); permite -> prossegue via joinPoint
 }
 ```
 
-O filtro JWT transforma isso em authorities; nos controllers, só a anotação pronta do
-Spring: `@PreAuthorize("hasAuthority('CLIENTE_CRIAR')")`.
+Uso nos outros módulos: `@RequiresPermission("CLIENTE_CRIAR")` sobre o método do controller.
+Documentar no PR: o Spring entrega isso com proxies dinâmicos (JDK/CGLIB), e a filter chain
+do Security é um Chain of Responsibility real para citar no trabalho.
 
-## 6. Pattern · Singleton nº 1: `EscopoCarteira`
+## 5. Pattern B · Adapter: `EmailService`
 
-```java
-@Service
-public class EscopoCarteira {
-    /** VENDEDOR -> [eu] · GERENTE -> [meus vendedores + eu] · ADMIN -> Optional.empty() = sem filtro */
-    public Optional<List<Integer>> vendedoresVisiveis() { ... }
-}
-```
-
-Para o trabalho: `@Service` tem escopo **singleton** por padrão. O container do Spring
-cria UMA instância e injeta essa mesma instância em clientes, funil, tarefas e relatórios.
-Ganhamos o padrão sem escrever `private static instance` nem `getInstance()`: o papel de
-controlar a instância única passou para o container. Provar com teste: injetar em dois
-pontos e `assertSame(a, b)`.
-
-## 7. Pattern · Template Method nº 1: `SeedBase`
+O domínio conhece só a porta; o detalhe de infraestrutura fica no adapter (trocável sem tocar regra):
 
 ```java
-public abstract class SeedBase implements CommandLineRunner {
-    @Override public final void run(String... args) {   // o template: fixo, final
-        if (jaExecutou()) return;
-        criarDados();
-        log.info("Seed {} aplicado", nome());
-    }
-    protected abstract boolean jaExecutou();            // passos que variam
-    protected abstract void criarDados();
-    protected abstract String nome();
-}
+public interface EmailService { void enviar(String para, String assunto, String corpo); }
+
+@Component @Profile({"dev","test"})
+class EmailConsoleAdapter implements EmailService { /* loga no console */ }
+
+@Component @Profile("prod")
+class EmailSmtpAdapter implements EmailService { /* JavaMailSender */ }
 ```
 
-Filhas: `SeedAdmin` (aqui, RN-08) e `SeedMotivosPerda` (SPEC-03). O esqueleto do algoritmo
-mora na classe base; as filhas só preenchem os passos.
+## 6. Catálogo de permissões (seed `perfil_permissao`)
+
+| Permissão | ADMIN | GERENTE | VENDEDOR |
+|-----------|:-----:|:-------:|:--------:|
+| CLIENTE_VER / CLIENTE_CRIAR / CLIENTE_EDITAR / CLIENTE_EXCLUIR / CLIENTE_TRANSFERIR | ✓ | ✓ | ✓ (transferir: não) |
+| INTERACAO_VER / INTERACAO_CRIAR | ✓ | ✓ | ✓ |
+| OPORTUNIDADE_VER / CRIAR / EDITAR / MOVER_ETAPA / REABRIR | ✓ | ✓ | ✓ |
+| TAREFA_VER / CRIAR / EDITAR / CONCLUIR | ✓ | ✓ | ✓ |
+| NOTIFICACAO_VER | ✓ | ✓ | ✓ |
+| DASHBOARD_VER | ✓ | ✓ | ✓ |
+| RANKING_VER (RF31: vendedor NÃO acessa) | ✓ | ✓ | — |
+| RELATORIO_EXPORTAR (RF22: vendedor não exporta) | ✓ | ✓ | — |
+| USUARIO_VER / USUARIO_CRIAR | ✓ | ✓ | — |
+| USUARIO_EDITAR / DESATIVAR / ALTERAR_PERFIL | ✓ | — | — |
+
+O que cada um enxerga DENTRO da permissão é papel do `EscopoCarteira` (seção 7), não da permissão.
+
+## 7. Componente compartilhado: `EscopoCarteira`
+
+Consumido por SPEC-02/03/04 em toda listagem (RF15, RF22, RF26):
+
+```java
+public interface EscopoCarteira {
+    /** ids de vendedor que o usuário autenticado pode enxergar:
+     *  VENDEDOR -> [eu]; GERENTE -> [meus vendedores + eu]; ADMIN -> Optional.empty() = sem filtro */
+    Optional<List<Integer>> vendedoresVisiveis();
+}
+```
 
 ## 8. Checklist de auditoria (colar no PR)
 
-- [ ] 5 senhas erradas → 423; após 15 min volta a aceitar (teste com clock mockado)
-- [ ] Token com 8h; requisição com token vencido → 401
-- [ ] Recuperar senha de e-mail inexistente responde 204 idêntico ao existente
-- [ ] Código usado 2x → 422; expirado → 422
-- [ ] GERENTE criando ADMIN → 403; VENDEDOR criando qualquer conta → 403
-- [ ] Desativar preserva clientes e oportunidades no banco (RF33)
-- [ ] Seed rodando 2x não duplica admin
-- [ ] Nenhum response contém senhaHash/codigoHash
-- [ ] `assertSame` provando o singleton do `EscopoCarteira`
+- [ ] Login feliz, senha errada 5x → 423, desbloqueio após 15 min (teste com clock mockado)
+- [ ] JWT expira em 8h; requisição com token vencido → 401
+- [ ] Recuperar senha de e-mail inexistente → 204 igualzinho ao existente
+- [ ] Código de recuperação reutilizado → 422; expirado (1h+) → 422
+- [ ] GERENTE tentando criar ADMIN → 403; VENDEDOR criando qualquer um → 403
+- [ ] Desativar usuário mantém clientes/oportunidades no banco (RF33) e publica evento
+- [ ] Seed idempotente: dois starts seguidos não duplicam admin nem permissões
+- [ ] Nenhum endpoint retorna `senhaHash`/`codigoHash` (asserção nos testes de integração)

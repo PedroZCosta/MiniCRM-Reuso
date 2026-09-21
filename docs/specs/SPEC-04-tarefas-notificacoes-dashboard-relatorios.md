@@ -1,148 +1,151 @@
 # SPEC-04 · Tarefas, Notificações, Dashboard e Relatórios
 
 **Responsável:** ______
-**Requisitos:** RF10, RF11, RF12, RF13, RF15, RF21, RF22, RF23, RF24, RF28, RF31
-**Patterns desta spec:** Template Method nº 2 (`GeradorNotificacaoBase`), Template Method nº 3 (`ExportadorBase`), Strategy (exportadores) e Facade (dashboard)
+**Requisitos:** RF10, RF11, RF12, RF13, RF15, RF21, RF22, RF23, RF24, RF28, RF31 · UC04, UC07, UC10, UC12, UC13, UC17
+**Design patterns:** Factory Method (notificações), Strategy + Template Method (exportadores), Facade (dashboard)
 
-É a spec mais larga, mas quase tudo é leitura/agregação. Depende dos métodos públicos de
-`ClienteService` (SPEC-02), `OportunidadeService` (SPEC-03) e do `EscopoCarteira` (SPEC-01).
+É a spec mais larga, porém quase toda de leitura/agregação: as escritas são tarefas e
+notificações. Depende das interfaces `OportunidadeConsultaService` (SPEC-03),
+`ClienteConsultaService` (SPEC-02) e `EscopoCarteira` (SPEC-01).
 
-## 0. Ajuste inicial (SPEC-00 §3)
+## 0. Ajustes iniciais (SPEC-00 §3)
 
-Primeiro PR: `TipoNotificacao` → `D15, D1, HOJE, VENCIDA, REUNIAO`.
+Primeiro PR: `TipoNotificacao` → `D15, D1, HOJE, VENCIDA, REUNIAO` (diagrama de classes do PDF).
 
-## 1. Tarefas (RF10, RF28)
+## 1. Entidades sob responsabilidade deste módulo
 
-| Endpoint | Permissão | Regra |
-|----------|-----------|-------|
-| `POST /api/v1/tarefas` | TAREFA_CRIAR | RN-01 |
-| `GET /api/v1/tarefas?situacao=&clienteId=&page=` | TAREFA_VER | RN-03; escopo de carteira |
-| `PUT /api/v1/tarefas/{id}` | TAREFA_EDITAR | título, descrição, vencimento |
-| `PATCH /api/v1/tarefas/{id}/concluir` | TAREFA_CONCLUIR | RN-02 |
-| `PATCH /api/v1/tarefas/{id}/reabrir` | TAREFA_CONCLUIR | desfaz conclusão |
+`Tarefa`, `Notificacao` (já criadas).
+
+## 2. Tarefas (RF10, RF28)
+
+| Endpoint | Permissão | Observação |
+|----------|-----------|------------|
+| `POST /api/v1/tarefas` | `TAREFA_CRIAR` | RN-01 |
+| `GET /api/v1/tarefas?situacao=&faixa=&clienteId=&page=` | `TAREFA_VER` | RN-03 |
+| `PUT /api/v1/tarefas/{id}` | `TAREFA_EDITAR` | título, descrição, vencimento |
+| `PATCH /api/v1/tarefas/{id}/concluir` | `TAREFA_CONCLUIR` | RN-02 |
+| `PATCH /api/v1/tarefas/{id}/reabrir` | `TAREFA_CONCLUIR` | desfaz conclusão |
 
 Criação: `{ "titulo", "descricao", "dataVencimento": "2026-09-20", "idCliente": 7, "idOportunidade": 12 }`.
-Cliente/oportunidade opcionais e independentes (RF10). Responsável = usuário logado
-(GERENTE/ADMIN podem atribuir com `"idUsuario"`).
+`idCliente`/`idOportunidade` opcionais e independentes (RF10); responsável = autenticado
+(GERENTE/ADMIN podem atribuir a outro com `"idUsuario"`).
 
-- **RN-01** `titulo` e `dataVencimento` obrigatórios; cliente/oportunidade, se vierem, validados pelos services das outras specs.
-- **RN-02** Concluir: `concluida=true`, `concluidaEm=agora`. **"Vencida" nunca vai para o banco**: é calculada (`dataVencimento < hoje && !concluida`) (RF28).
-- **RN-03** `situacao` = `PENDENTE | VENCIDA | CONCLUIDA`, resolvida na consulta.
-- Método público para o histórico da SPEC-02: `List<Tarefa> listarDoCliente(Integer idCliente)`.
+- **RN-01** `titulo` e `dataVencimento` obrigatórios; cliente/oportunidade, quando informados, devem existir e estar no escopo (validar pelas interfaces públicas, nunca por repository alheio).
+- **RN-02** Concluir seta `concluida=true` + `concluidaEm=agora`. Só "concluída" é persistida; **"vencida" é sempre calculada** (`dataVencimento < hoje && !concluida`), nunca gravada (RF28).
+- **RN-03** `situacao` = `PENDENTE | VENCIDA | CONCLUIDA` (calculado); `faixa` = `D15 | D1 | HOJE | VENCIDA` para a tela inicial (RF13). Listagem respeita `EscopoCarteira`: vendedor vê as dele, gerente as da equipe.
 
-## 2. Notificações (RF13, RF23, RF24)
+## 3. Notificações (RF13, RF23, RF24, UC07, UC12)
 
-Internas, sem e-mail (RF23). Cada usuário só vê as suas.
+Internas ao sistema, sem e-mail (RF23).
 
-| Endpoint | Permissão | Regra |
-|----------|-----------|-------|
-| `GET /api/v1/notificacoes?lida=&page=` | NOTIFICACAO_VER | `geradaEm` desc |
-| `GET /api/v1/notificacoes/contador` | NOTIFICACAO_VER | `{ "naoLidas": 4 }` |
-| `PATCH /api/v1/notificacoes/{id}/lida` | NOTIFICACAO_VER | de outro usuário → 404 |
-| `PATCH /api/v1/notificacoes/marcar-todas` | NOTIFICACAO_VER | RF23 |
+| Endpoint | Permissão | Observação |
+|----------|-----------|------------|
+| `GET /api/v1/notificacoes?lida=&page=` | `NOTIFICACAO_VER` | só as do usuário autenticado, `geradaEm` desc |
+| `GET /api/v1/notificacoes/contador` | `NOTIFICACAO_VER` | `{ "naoLidas": 4 }` (badge) |
+| `PATCH /api/v1/notificacoes/{id}/lida` | `NOTIFICACAO_VER` | 404 se de outro usuário |
+| `PATCH /api/v1/notificacoes/marcar-todas` | `NOTIFICACAO_VER` | RF23 "Marcar todas como lidas" |
 
-Geração: um job `@Scheduled(cron = "0 0 7 * * *")` (+ uma rodada no start) varre as
-tarefas não concluídas e cria notificações por faixa: vence em 15 dias → D15, amanhã → D1,
-hoje → HOJE, atrasada → VENCIDA. Interação REUNIAO com data futura → REUNIAO.
+### 3.1 Geração agendada (ator Schedule do diagrama de casos de uso)
 
-- **RN-04** Sem duplicata: no máximo 1 notificação por (tarefa, faixa). O job verifica antes de inserir; rodar 2x não duplica.
-- **RN-05** Mensagens do RF24 (ex.: D1 → "Sua atividade vai vencer amanhã"). O pop-up "uma vez por sessão" é responsabilidade do front.
+Job diário `@Scheduled(cron = "0 0 7 * * *")` + execução no start: varre tarefas não
+concluídas do dia e publica `TarefaVencendoEvent` por faixa: vence em 15 dias → `D15`,
+amanhã → `D1`, hoje → `HOJE`, atrasada → `VENCIDA`. Reuniões agendadas (interação REUNIAO
+com data futura) → `REUNIAO`.
 
-### Pattern · Template Method nº 2: `GeradorNotificacaoBase`
+- **RN-04** Idempotência: no máximo 1 notificação por (tarefa, faixa, usuário). Reexecutar o job não duplica (constraint de unicidade lógica verificada antes do insert).
+- **RN-05** Notificação nasce `lida=false`; a mensagem segue o RF24: `D1` → "Sua atividade vai vencer amanhã", etc. O pop-up "uma vez por sessão" é controle do front; o backend entrega tudo via listagem.
+
+### 3.2 Pattern A · Factory Method: `NotificacaoFactory`
+
+Cada faixa produz mensagem e conteúdo próprios; o listener não conhece as concretas:
 
 ```java
-public abstract class GeradorNotificacaoBase {
-    public final Notificacao gerar(Tarefa tarefa) {   // esqueleto fixo
-        Notificacao n = new Notificacao();
-        n.setUsuario(tarefa.getUsuario());
-        n.setTarefa(tarefa);
-        n.setTipo(tipo());                            // passos das filhas
-        n.setMensagem(mensagem(tarefa));
+public abstract class NotificacaoFactory {
+    public final Notificacao criar(TarefaVencendoEvent evento) {   // template do produto
+        Notificacao n = instanciar(evento);                        // factory method
         n.setLida(false);
         return n;
     }
-    protected abstract TipoNotificacao tipo();
-    protected abstract String mensagem(Tarefa tarefa);
+    protected abstract Notificacao instanciar(TarefaVencendoEvent evento);
+    public abstract TipoNotificacao faixa();
 }
-// filhas: GeradorD15, GeradorD1, GeradorHoje, GeradorVencida
+// concretas: NotificacaoD15Factory, NotificacaoD1Factory, NotificacaoHojeFactory,
+// NotificacaoVencidaFactory, NotificacaoReuniaoFactory — registradas num Map<TipoNotificacao, NotificacaoFactory>
 ```
 
-## 3. Dashboard (RF11, RF15) · Pattern: Facade
+## 4. Dashboard e Ranking (RF11, RF15, RF31, UC04, UC13)
 
-`GET /api/v1/dashboard` · `DASHBOARD_VER`. Números já recortados pelo escopo: VENDEDOR
-recebe os dele, GERENTE os da equipe, ADMIN tudo (RF15).
+### 4.1 `GET /api/v1/dashboard` · permissão `DASHBOARD_VER` · Pattern B: Facade
+
+Uma chamada, todos os indicadores, já recortados pelo `EscopoCarteira` (RF15: VENDEDOR
+recebe só os próprios números; GERENTE, os da equipe; ADMIN, tudo):
 
 ```json
-{ "totalClientes": 28,
+{
+  "totalClientes": 28,
   "clientesPorStatus": { "PROSPECT": 10, "ATIVO": 15, "INATIVO": 3 },
   "oportunidadesAbertas": 24,
   "oportunidadesPorEtapa": { "PROSPECCAO": 9, "CONTATO": 7, "PROPOSTA": 8 },
   "valorEmNegociacao": 1485000.00,
-  "alertasTarefas": { "vencidas": 3, "hoje": 2, "amanha": 1, "em15dias": 4 } }
+  "alertasTarefas": { "vencidas": 3, "hoje": 2, "amanha": 1, "em15dias": 4 }
+}
 ```
 
-`DashboardFacade` chama `ClienteService` + `OportunidadeService` + `TarefaService` e monta
-o DTO. O controller fica com ~3 linhas. Para a apresentação: sem a fachada, o controller
-conheceria 3 services e a ordem certa de chamá-los; com ela, conhece um único ponto.
+`DashboardFacade` orquestra `ClienteConsultaService` + `OportunidadeConsultaService` +
+`TarefaService` e monta o DTO. Controller com 3 linhas: é a demonstração do padrão
+(subsistemas complexos atrás de uma interface única).
 
-## 4. Ranking (RF31)
+### 4.2 `GET /api/v1/ranking?inicio=&fim=` · permissão `RANKING_VER` (RF31)
 
-`GET /api/v1/ranking?inicio=&fim=` · `RANKING_VER` (VENDEDOR não tem → 403).
-ADMIN vê geral; GERENTE só os próprios vendedores.
+VENDEDOR → 403 (sem a permissão). ADMIN vê geral; GERENTE, só os próprios vendedores:
 
 ```json
-{ "posicoes": [ { "posicao": 1, "vendedor": "Juliana Torres",
-                  "valorGanho": 178000.00, "oportunidadesFechadas": 5 } ] }
+{ "periodo": { "inicio": "2026-01-01", "fim": "2026-09-10" }, "posicoes": [
+  { "posicao": 1, "vendedor": "Juliana Torres", "valorGanho": 178000.00, "oportunidadesFechadas": 5 }
+] }
 ```
 
-Ordena por `valorGanho` desc, empate por `oportunidadesFechadas` desc. Fonte:
-`OportunidadeService.fechadasNoPeriodo(...)`.
+Ordenação: `valorGanho` desc, empate por `oportunidadesFechadas` desc.
 
-## 5. Relatórios (RF12, RF21, RF22) · Patterns: Strategy + Template Method nº 3
+## 5. Relatórios (RF12, RF21, RF22, UC17) · Pattern C: Strategy + Template Method
 
-| Endpoint | Permissão |
-|----------|-----------|
-| `GET /api/v1/relatorios/clientes?formato=csv&status=&inicio=&fim=` | RELATORIO_EXPORTAR |
-| `GET /api/v1/relatorios/oportunidades?formato=csv&etapa=&inicio=&fim=` | RELATORIO_EXPORTAR |
+| Endpoint | Permissão | Observação |
+|----------|-----------|------------|
+| `GET /api/v1/relatorios/clientes?formato=csv&status=&inicio=&fim=` | `RELATORIO_EXPORTAR` | colunas RF12 |
+| `GET /api/v1/relatorios/oportunidades?formato=csv&etapa=&inicio=&fim=` | `RELATORIO_EXPORTAR` | colunas RF12 |
 
-- **RN-06** Exporta o resultado COMPLETO do filtro, não uma página (RF12). `inicio`/`fim` filtram por `criadoEm` (RF21).
-- **RN-07** Colunas do RF12. Clientes: nome, e-mail, telefone, empresa, status, vendedor. Oportunidades: cliente, valor estimado, etapa, data prevista, vendedor.
-- **RN-08** VENDEDOR sem a permissão → 403; GERENTE exporta só a equipe (RF22).
-- CSV obrigatório (`text/csv`, UTF-8, separador `;`, `Content-Disposition: attachment`). PDF é desejável: mesma interface, entra se der tempo.
+- **RN-06** Exporta o RESULTADO COMPLETO do filtro, não a página (RF12). Período filtra `criadoEm` (clientes) / `fechadaEm` ou `criadoEm` (oportunidades, documentar a escolha no código) (RF21).
+- **RN-07** Colunas fixas do RF12. Clientes: nome, e-mail, telefone, empresa, status, vendedor responsável. Oportunidades: cliente, valor estimado, etapa, data prevista, vendedor responsável.
+- **RN-08** VENDEDOR não tem `RELATORIO_EXPORTAR` → 403; GERENTE exporta só a equipe (escopo aplicado ANTES da exportação) (RF22).
+- CSV obrigatório (`text/csv`, UTF-8 com BOM, separador `;`, header `Content-Disposition: attachment`); PDF desejável, entra se sobrar tempo com a mesma interface.
 
 ```java
-public interface RelatorioExportStrategy {                 // Strategy
-    String formato();                                      // "csv", "pdf"
-    byte[] exportar(List<String> cabecalho, List<List<String>> linhas);
+public interface RelatorioExportStrategy {              // Strategy
+    String formato();                                   // "csv", "pdf"
+    byte[] exportar(RelatorioDados dados);
+    MediaType mediaType();
 }
-
 public abstract class ExportadorBase implements RelatorioExportStrategy {  // Template Method
-    public final byte[] exportar(List<String> cabecalho, List<List<String>> linhas) {
-        abrir();
-        escreverCabecalho(cabecalho);
-        linhas.forEach(this::escreverLinha);
-        return fechar();
+    public final byte[] exportar(RelatorioDados dados) {
+        var saida = abrirDocumento();
+        escreverCabecalho(saida, dados.colunas());
+        dados.linhas().forEach(l -> escreverLinha(saida, l));
+        return fechar(saida);
     }
-    protected abstract void abrir();
-    protected abstract void escreverCabecalho(List<String> c);
-    protected abstract void escreverLinha(List<String> l);
-    protected abstract byte[] fechar();
+    protected abstract ...;
 }
+// CsvExportador e (futuro) PdfExportador; resolução por Map<String, RelatorioExportStrategy>;
+// formato desconhecido -> 400
 ```
-
-O controller resolve a estratégia num `Map<String, RelatorioExportStrategy>` (o Spring
-injeta a lista de implementações); formato desconhecido → 400. Ponto de apresentação:
-Strategy é a escolha da família de algoritmo em runtime; Template Method é o esqueleto
-comum dentro de cada família. Dois padrões, mesmo código, papéis diferentes.
 
 ## 6. Checklist de auditoria (colar no PR)
 
-- [ ] "Vencida" não existe no banco: mudar o relógio do teste muda a situação (RF28)
+- [ ] Tarefa vencida NÃO tem flag no banco: mudar o relógio do teste muda a situação (RF28)
 - [ ] Job rodado 2x no mesmo dia não duplica notificações (RN-04)
-- [ ] Cada faixa gera a mensagem certa via seu gerador (RF24)
-- [ ] Notificação alheia: não lista e PATCH → 404 (RF23)
-- [ ] Dashboard do VENDEDOR ≠ do GERENTE com os mesmos dados (RF15)
-- [ ] Ranking: VENDEDOR → 403; GERENTE só a equipe; ordenação correta (RF31)
-- [ ] CSV traz TODAS as linhas com 45 registros e página de 20 (RF12)
-- [ ] `?formato=xml` → 400; CSV abre no Excel com acentos corretos
-- [ ] Período `inicio`/`fim` respeitado (RF21)
+- [ ] Cada faixa (D15/D1/HOJE/VENCIDA) gera a mensagem certa via factory (RF24)
+- [ ] Notificação de outro usuário: GET não lista, PATCH lida → 404 (RF23)
+- [ ] Dashboard de VENDEDOR ≠ dashboard do GERENTE com os mesmos dados de teste (RF15)
+- [ ] Ranking: VENDEDOR → 403; GERENTE só vê a equipe; ordenação por valor ganho (RF31)
+- [ ] CSV traz TODAS as linhas do filtro com 45 registros e page size 20 (RF12)
+- [ ] CSV abre no Excel com acentuação correta (BOM) e colunas exatas do RF12
+- [ ] Relatório com `inicio`/`fim` respeita o período (RF21)

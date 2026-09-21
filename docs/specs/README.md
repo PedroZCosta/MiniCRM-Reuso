@@ -1,80 +1,67 @@
 # Especificações Técnicas · Mini CRM PJBL (Backend)
 
-Backend dividido em 4 módulos, um por integrante, + a SPEC-00 com as regras que valem para
-todos. Leiam a SPEC-00 antes de codar: é ela que garante que as partes se encaixam.
+Divisão do backend em 4 módulos independentes + 1 spec de fundação com os contratos
+compartilhados. Cada integrante assume uma spec, e a SPEC-00 é leitura obrigatória de
+todos antes de começar: ela define os contratos que impedem divergência entre os módulos.
 
 Fonte dos requisitos: `Project Planning for Software Product Lines.pdf` (RF01-RF33,
-RNF01-RNF10). O modelo de dados já está pronto em `src/main/java/com/miniCRM/miniCRM/model`.
-
-**Princípio geral: simples resolve.** Nada de camada extra, abstração "para o futuro" ou
-configuração esperta. Código que um júnior lê e entende na primeira passada.
+RNF01-RNF10, UC01-UC18, Ativo 6 - Módulo RBAC). O modelo de dados já está implementado
+em `src/main/java/com/miniCRM/miniCRM/model`.
 
 ## Escopo desta fase
 
-- Somente backend (API REST + 1 job agendado). Front-end fica para a próxima fase.
-- Requisitos de interface (RNF01, RNF04, RNF08, RNF09, parte visual de RF13/RF24) ficam
-  para o front; o backend só entrega os dados.
+- **Somente backend** (API REST + jobs agendados). O front-end virá em fase futura.
+- A Parte III do PDF (alta variabilidade, PV1-PV12) fica fora desta fase, com uma exceção
+  que sai de graça: as permissões RBAC como dados no banco (VP-1, VP-2, VP-3 do Ativo 6).
+- Requisitos de interface (RNF01, RNF04, RNF08, RNF09 e a parte visual de RF13/RF24)
+  ficam para o front. O backend entrega os dados prontos para eles.
 
 ## As specs
 
-| Spec | Módulo | Responsável | Requisitos |
-|------|--------|-------------|------------|
-| [SPEC-00](SPEC-00-fundacao-contratos.md) | Fundação e contratos | todos | RF18, RNF03, RNF05 |
-| [SPEC-01](SPEC-01-autenticacao-usuarios-rbac.md) | Autenticação e Usuários | ______ | RF01, RF02, RF14, RF17, RF20, RF25, RF27, RF32, RF33 |
-| [SPEC-02](SPEC-02-clientes-interacoes.md) | Clientes e Interações | ______ | RF03, RF04, RF05, RF06, RF16, RF26, RF30 |
-| [SPEC-03](SPEC-03-funil-oportunidades.md) | Funil de Oportunidades | ______ | RF07, RF08, RF09, RF19, RF29 |
-| [SPEC-04](SPEC-04-tarefas-notificacoes-dashboard-relatorios.md) | Tarefas, Notificações, Dashboard e Relatórios | ______ | RF10-13, RF15, RF21-24, RF28, RF31 |
+| Spec | Módulo | Responsável | Requisitos | Design Patterns |
+|------|--------|-------------|------------|-----------------|
+| [SPEC-00](SPEC-00-fundacao-contratos.md) | Fundação e contratos compartilhados | todos | RNF03, RNF05, RF18 | Singleton (beans Spring), convenções |
+| [SPEC-01](SPEC-01-autenticacao-usuarios-rbac.md) | Autenticação, Usuários e RBAC | ______ | RF01, RF02, RF14, RF17, RF20, RF25, RF27, RF32, RF33 | **Proxy** (AOP de permissão), **Adapter** (e-mail), Chain of Responsibility (filter chain) |
+| [SPEC-02](SPEC-02-clientes-interacoes.md) | Clientes e Interações | ______ | RF03, RF04, RF05, RF06, RF16, RF26, RF30 | **Specification/Composite** (busca dinâmica), **Observer** (status do cliente) |
+| [SPEC-03](SPEC-03-funil-oportunidades.md) | Funil de Oportunidades | ______ | RF07, RF08, RF09, RF19, RF29 | **State** (etapas do funil), **Observer** (eventos de domínio, lado publicador) |
+| [SPEC-04](SPEC-04-tarefas-notificacoes-dashboard-relatorios.md) | Tarefas, Notificações, Dashboard e Relatórios | ______ | RF10, RF11, RF12, RF13, RF15, RF21, RF22, RF23, RF24, RF28, RF31 | **Factory Method** (notificações), **Strategy + Template Method** (exportadores), **Facade** (dashboard) |
 
-Integrantes: Lincoln Neto, Pedro Costa, Leandro Canha, Nicolas Hara. Preencham a coluna
-Responsável no primeiro commit.
+Integrantes do grupo: Lincoln Neto, Pedro Costa, Leandro Canha, Nicolas Hara.
+Preencham a coluna Responsável no primeiro commit de cada um.
 
-## Design Patterns do trabalho (combinado com o professor)
+## Mapa de integração entre módulos
 
-Obrigatório: **2 Singletons + 3 Template Methods + 3 outros padrões**, todos surgindo
-naturalmente do projeto. Onde cada um vive:
+Toda comunicação entre módulos acontece por UM destes dois canais. Nenhum service de um
+módulo chama repository de outro módulo. Isso é o que a auditoria vai verificar primeiro.
 
-| # | Padrão | Onde | Spec | O que apresentar |
-|---|--------|------|------|------------------|
-| 1 | **Singleton** | `EscopoCarteira` (@Service) | 01 | O Spring cria UMA instância por container (escopo padrão singleton) e injeta a mesma em todos os módulos. Mostrar que não precisamos de `getInstance()`: o container faz o papel do padrão. |
-| 2 | **Singleton** | `ClienteService` (@Service) | 02 | Mesmo mecanismo, segundo exemplo exigido. Demonstrar com teste: dois `@Autowired` recebem o mesmo objeto (`assertSame`). |
-| 3 | **Template Method** | `SeedBase` → `SeedAdmin`, `SeedMotivosPerda` | 01 e 03 | Esqueleto fixo (`jaExecutou()? senão criarDados() e logar`), passos variáveis nas filhas. |
-| 4 | **Template Method** | `GeradorNotificacaoBase` → D15, D1, Hoje, Vencida | 04 | Base monta a `Notificacao` comum; cada filha define tipo e mensagem. |
-| 5 | **Template Method** | `ExportadorBase` → `CsvExportador`, `PdfExportador` | 04 | `exportar()` final: abre → cabeçalho → linhas → fecha; filhas escrevem cada passo. |
-| 6 | **Strategy** | `RelatorioExportStrategy` (csv/pdf) | 04 | O controller escolhe a estratégia pelo query param `formato`, sem if espalhado. |
-| 7 | **Observer** | `OportunidadeFechadaEvent` | 03 publica, 02 escuta | Funil não conhece o módulo de clientes; o listener promove PROSPECT → ATIVO (RF30). |
-| 8 | **Facade** | `DashboardFacade` | 04 | Uma fachada esconde 3 services; o controller do dashboard tem ~3 linhas (RF11). |
+### Canal 1: eventos de domínio (assíncrono, desacoplado)
 
-Strategy e Template Method dos exportadores convivem na mesma classe base, e isso é bom
-para o trabalho: dá para mostrar os dois papéis no mesmo código.
+| Evento | Publicado por | Consumido por | Efeito |
+|--------|---------------|---------------|--------|
+| `OportunidadeEtapaAlteradaEvent` | SPEC-03 | SPEC-03 (grava `historico_etapa`) | trilha do funil |
+| `OportunidadeFechadaEvent` | SPEC-03 | SPEC-02 (RF30: cliente vira ATIVO na 1ª ganha) | status automático |
+| `TarefaVencendoEvent` | SPEC-04 (job) | SPEC-04 (NotificacaoFactory) | notificações D15/D1/HOJE/VENCIDA |
+| `UsuarioDesativadoEvent` | SPEC-01 | SPEC-02 (marca carteira "sem responsável ativo", RF33) | preservação de dados |
 
-## Como os módulos conversam (sem divergência)
+Payloads definidos na SPEC-00, seção 6. Ninguém altera um payload sem PR aprovado pelos 4.
 
-Duas regras, verificáveis no code review:
+### Canal 2: interfaces de serviço público
 
-1. **Service pode chamar service público de outro módulo. Repository de outro módulo, nunca.**
-   Ex.: `OportunidadeService` valida cliente chamando `ClienteService.buscarAtivo(id)`.
-2. **O único evento do sistema é `OportunidadeFechadaEvent`** (payload na SPEC-00 §5).
-   Ninguém cria evento novo nem muda o payload sem combinar com o grupo.
+| Interface | Dono | Consumidores | Uso |
+|-----------|------|--------------|-----|
+| `EscopoCarteira` | SPEC-01 | SPEC-02, 03, 04 | resolve quais `idVendedor` o usuário logado enxerga (RF15/RF22/RF26) |
+| `@RequiresPermission` + aspecto | SPEC-01 | todos | autorização declarativa nos endpoints |
+| `ClienteConsultaService` | SPEC-02 | SPEC-03, 04 | validar existência/estado do cliente sem acoplar repository |
+| `OportunidadeConsultaService` | SPEC-03 | SPEC-04 | dados de oportunidade para dashboard/relatórios |
+
+## Matriz de rastreabilidade RF → Spec
+
+RF01,02,14,17,20,25,27,32,33 → SPEC-01 · RF03,04,05,06,16,26,30 → SPEC-02 ·
+RF07,08,09,19,29 → SPEC-03 · RF10-13,15,21-24,28,31 → SPEC-04 · RF18 (paginação) → SPEC-00 (todos).
 
 ## Fluxo de trabalho no Git
 
 1. Uma branch por spec: `spec-01-auth`, `spec-02-clientes`, `spec-03-funil`, `spec-04-tarefas`.
-2. Conventional Commits em português citando o requisito: `feat(funil): mover etapa (RF09)`.
-3. PR para a `main` com o checklist de auditoria da spec preenchido.
-4. Revisão cruzada: 01↔04 e 02↔03 revisam um ao outro.
-
-## Trabalho em paralelo (ninguém espera ninguém)
-
-A `main` contém um **esqueleto de contratos**: enums corrigidos, `PageResponse`, handler
-de erros, o evento `OportunidadeFechadaEvent` e stubs dos pontos de contato
-(`EscopoCarteira`, `ClienteService.buscarAtivo`, `OportunidadeService.listarDoCliente`
-etc., lançando `UnsupportedOperationException`). Com isso:
-
-1. **Compila sempre**: o método do módulo vizinho já existe, mesmo sem lógica.
-2. **Testes não esperam**: unitário mocka o service vizinho (Mockito); o RF30 se testa
-   publicando o evento na mão; segurança se simula com
-   `@WithMockUser(authorities = "CLIENTE_CRIAR")` do spring-security-test, sem o JWT pronto.
-3. **Cada dev substitui o próprio stub** pela implementação real no seu PR. Como cada um
-   mexe só nos seus arquivos, não há conflito de merge.
-4. Única ordem recomendada: **mergear a SPEC-01 primeiro**, para o teste manual via
-   Postman ter login de verdade. Isso ordena os merges, não o desenvolvimento.
+2. Commits em Conventional Commits, em português, sempre citando o requisito: `feat(funil): mover etapa com validação de transição (RF09)`.
+3. PR para a `main` com checklist de auditoria da própria spec preenchido (seção final de cada spec).
+4. Quem revisa o PR é o dev da spec vizinha (01↔04, 02↔03), verificando os contratos da SPEC-00.

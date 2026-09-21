@@ -1,117 +1,153 @@
 # SPEC-00 · Fundação e Contratos Compartilhados
 
-**Responsável:** todos (ler antes de qualquer código)
+**Responsável:** todos (leitura obrigatória antes de qualquer linha de código)
 **Requisitos:** RF18 (paginação), RNF03 (segurança), RNF05 (versionamento)
+**Status das entidades:** já implementadas em `model/` (commit `c7faa81`), com ajustes de enum pendentes (seção 3).
 
-Regras que valem para os 4 módulos. Mudança aqui só com os 4 de acordo, via PR.
+Esta spec não é um módulo: é o conjunto de decisões que valem para os 4 módulos.
+Qualquer mudança aqui exige concordância dos 4 integrantes via PR.
+
+---
 
 ## 1. Estrutura de pacotes
 
 ```
 com.miniCRM.miniCRM
-├── config/          SecurityConfig, seeds
-├── security/        JWT (gerar/validar), filtro, EscopoCarteira
-├── model/ (enums/)  entidades JPA (já criadas)
-├── repository/      interfaces Spring Data
-├── service/         regras de negócio
-├── controller/      endpoints REST
-├── dto/             requests e responses (nunca expor entidade direto no controller)
-├── event/           OportunidadeFechadaEvent
-└── exception/       exceções de negócio + handler global
+├── config/          SecurityConfig, JacksonConfig, SchedulingConfig
+├── security/        JWT, filtro, @RequiresPermission, PermissionAspect, EscopoCarteira (SPEC-01)
+├── model/           entidades JPA (compartilhadas, já criadas)
+│   └── enums/
+├── repository/      interfaces Spring Data (cada spec adiciona SEUS métodos de consulta)
+├── service/         regras de negócio (1+ classes por módulo)
+├── controller/      endpoints REST (1+ classes por módulo)
+├── dto/             requests/responses por módulo: dto/auth, dto/cliente, dto/funil, dto/tarefa...
+├── event/           eventos de domínio (payloads desta spec, seção 6)
+└── exception/       exceções de negócio + handler global (seção 5)
 ```
 
-Sentido único: **controller → service → repository.** Controller não usa repository.
-Service usa service público de outro módulo quando precisar; repository alheio, nunca.
+Regra de ouro: **controller → service → repository, sempre nessa direção.** Controller não
+toca repository. Service de um módulo não injeta repository de outro módulo (usa as
+interfaces públicas ou eventos do mapa de integração no README).
 
 ## 2. Convenções REST
 
-- Base path `/api/v1`, recursos no plural em português: `/api/v1/clientes`, `/api/v1/motivos-perda`.
-- Datas ISO-8601: `2026-09-10` (DATE) e `2026-09-10T14:30:00` (DATETIME). É o default do Jackson com `LocalDate`/`LocalDateTime`, ninguém formata na mão.
-- POST cria (201), GET lê (200), PUT edita (200), PATCH muda estado pontual (200/204), DELETE lógico (204).
-- Tudo autenticado com `Authorization: Bearer <token>`, exceto os 3 endpoints públicos da SPEC-01.
+- Base path: `/api/v1`. Recursos no plural, em português, kebab-case: `/api/v1/motivos-perda`.
+- Datas: ISO-8601 (`2026-09-10` para DATE, `2026-09-10T14:30:00` para DATETIME). Jackson já serializa `LocalDate`/`LocalDateTime` assim; ninguém formata data na mão.
+- Verbos: POST cria (201 + body criado), GET lê (200), PUT substitui (200), PATCH altera estado pontual (200 ou 204), DELETE lógico (204).
+- Autenticação: header `Authorization: Bearer <jwt>` em tudo, exceto os endpoints públicos listados na SPEC-01.
 
-### 2.1 Paginação (RF18)
+### 2.1 Paginação (RF18, obrigatória em TODA listagem)
 
-Página fixa de **20**. Param `?page=0` (base zero). Toda listagem responde no envelope
-(`PageResponse<T>` em `dto/comum`, preenchido a partir do `Page` do Spring):
+Tamanho fixo de página: **20**. Query params: `?page=0` (base zero). O cliente não escolhe o tamanho.
+Resposta sempre neste envelope (classe `PageResponse<T>` em `dto/comum`):
 
 ```json
-{ "conteudo": [], "pagina": 0, "tamanho": 20, "totalPaginas": 3, "totalRegistros": 47 }
+{
+  "conteudo": [],
+  "pagina": 0,
+  "tamanho": 20,
+  "totalPaginas": 3,
+  "totalRegistros": 47
+}
 ```
 
-## 3. Enums canônicos (corrigir antes das features)
+Busca e filtros preservados ao trocar de página = responsabilidade do front; o backend
+garante que os mesmos query params retornam o mesmo resultado.
 
-Os enums do commit inicial divergem do PDF. Cada dono corrige no seu primeiro PR:
+## 3. Enums canônicos (ajuste obrigatório antes de qualquer feature)
 
-| Enum | Valores corretos (PDF) | Dono |
-|------|------------------------|------|
-| `PerfilUsuario` | `ADMIN, GERENTE, VENDEDOR` (já está certo) | SPEC-01 |
-| `StatusCliente` | `PROSPECT, ATIVO, INATIVO` (tirar LEAD) | SPEC-02 |
-| `TipoInteracao` | `LIGACAO, EMAIL, REUNIAO` (tirar WHATSAPP, VISITA) | SPEC-02 |
-| `EtapaOportunidade` | `PROSPECCAO, CONTATO, PROPOSTA, GANHA, PERDIDA` | SPEC-03 |
-| `TipoNotificacao` | `D15, D1, HOJE, VENCIDA, REUNIAO` | SPEC-04 |
+Os enums criados no commit inicial divergem do PDF. Corrigir assim, cada dono no primeiro PR:
 
-## 4. Erros padronizados
+| Enum | Valor canônico (PDF) | Dono do ajuste |
+|------|----------------------|----------------|
+| `PerfilUsuario` | `ADMIN, GERENTE, VENDEDOR` (já correto; seed RBAC do Ativo 6 usa ADMIN) | SPEC-01 |
+| `StatusCliente` | `PROSPECT, ATIVO, INATIVO` (remover LEAD; RF04/RF30) | SPEC-02 |
+| `TipoInteracao` | `LIGACAO, EMAIL, REUNIAO` (remover WHATSAPP e VISITA; RF05) | SPEC-02 |
+| `EtapaOportunidade` | `PROSPECCAO, CONTATO, PROPOSTA, GANHA, PERDIDA` (RF08: "Fechado" = GANHA ou PERDIDA) | SPEC-03 |
+| `TipoNotificacao` | `D15, D1, HOJE, VENCIDA, REUNIAO` (diagrama de classes do PDF) | SPEC-04 |
 
-Um `@RestControllerAdvice` (`exception/ApiExceptionHandler`) traduz tudo para:
+Todos os enums persistem como `EnumType.STRING` (já configurado nas entidades).
+
+## 4. Segurança transversal (RNF03)
+
+- Senha: BCrypt via `PasswordEncoder`, nunca texto puro, nunca logada (os `@ToString` das entidades já excluem `senhaHash` e `codigoHash`).
+- Toda rota fora da lista pública exige JWT válido; autorização fina via `@RequiresPermission` (SPEC-01).
+- Visibilidade de dados: **nenhuma query de listagem sai sem passar pelo `EscopoCarteira`** (seção 7 da SPEC-01). VENDEDOR enxerga só a própria carteira; GERENTE, a dos seus vendedores; ADMIN, tudo. Vale para clientes, oportunidades, tarefas, dashboard e relatórios (RF15, RF22).
+
+## 5. Erros padronizados
+
+Handler global (`@RestControllerAdvice`, classe `exception/ApiExceptionHandler`) traduz
+exceções para este envelope, sem stack trace vazando:
 
 ```json
-{ "timestamp": "2026-09-10T14:30:00", "status": 422, "erro": "REGRA_NEGOCIO",
-  "mensagem": "Oportunidade fechada precisa ser reaberta antes de mover", "detalhes": [] }
+{
+  "timestamp": "2026-09-10T14:30:00",
+  "status": 422,
+  "erro": "REGRA_NEGOCIO",
+  "mensagem": "Oportunidade fechada exige reabertura antes de mover de etapa",
+  "detalhes": []
+}
 ```
 
 | HTTP | `erro` | Quando |
 |------|--------|--------|
-| 400 | `REQUISICAO_INVALIDA` | Bean Validation falhou (campos em `detalhes`) |
-| 401 | `NAO_AUTENTICADO` | token ausente, inválido ou expirado |
-| 403 | `SEM_PERMISSAO` | perfil sem a permissão |
-| 404 | `NAO_ENCONTRADO` | id não existe OU está fora do escopo do usuário |
+| 400 | `REQUISICAO_INVALIDA` | Bean Validation falhou (`detalhes` lista campo+motivo) |
+| 401 | `NAO_AUTENTICADO` | JWT ausente/expirado/inválido |
+| 403 | `SEM_PERMISSAO` | `@RequiresPermission` negou, ou registro fora do escopo de carteira |
+| 404 | `NAO_ENCONTRADO` | id inexistente (ou fora do escopo, quando não se deve revelar existência) |
 | 409 | `CONFLITO` | e-mail duplicado, transição de etapa inválida |
-| 422 | `REGRA_NEGOCIO` | regra RN-xx violada |
-| 423 | `BLOQUEADO` | login bloqueado por tentativas |
+| 422 | `REGRA_NEGOCIO` | violação de regra (RN-xx das specs) |
+| 423 | `BLOQUEADO` | login bloqueado por tentativas (RF01) |
 
-Três exceções bastam: `RegraNegocioException`, `RecursoNaoEncontradoException`,
-`ConflitoException`. Não criar formato de erro próprio.
+Exceções de negócio: `RegraNegocioException(mensagem)`, `RecursoNaoEncontradoException`,
+`SemPermissaoException`. Ninguém cria formato de erro próprio.
 
-## 5. O único evento do sistema
+## 6. Eventos de domínio (contratos imutáveis)
 
-Padrão **Observer** via `ApplicationEventPublisher` do Spring, listener com
-`@EventListener` simples (síncrono, mesma transação). Payload é um record em `event/`:
+Mecanismo: `ApplicationEventPublisher` do Spring (implementação do padrão **Observer**:
+o publicador não conhece os ouvintes). Listeners que gravam banco usam
+`@TransactionalEventListener(phase = AFTER_COMMIT)` quando o efeito deve ocorrer apenas
+se a transação de origem confirmou. Payloads são `record`s no pacote `event/`:
 
 ```java
+public record OportunidadeEtapaAlteradaEvent(
+    Integer idOportunidade, Integer idUsuario,
+    EtapaOportunidade etapaAnterior, EtapaOportunidade etapaNova,
+    LocalDateTime ocorridoEm) {}
+
 public record OportunidadeFechadaEvent(
     Integer idOportunidade, Integer idCliente, Integer idVendedor,
-    EtapaOportunidade resultado,   // GANHA ou PERDIDA
+    EtapaOportunidade resultado,          // GANHA ou PERDIDA
+    Short idMotivoPerda,                  // null quando GANHA
     BigDecimal valorEstimado, LocalDateTime fechadaEm) {}
+
+public record TarefaVencendoEvent(
+    Integer idTarefa, Integer idUsuario, String tituloTarefa,
+    TipoNotificacao faixa, LocalDate dataVencimento) {}
+
+public record UsuarioDesativadoEvent(Integer idUsuario, LocalDateTime desativadoEm) {}
 ```
 
-SPEC-03 publica; SPEC-02 escuta (RF30). Só isso. Precisou de outro evento? Discutir no grupo primeiro.
-
-## 6. Segurança transversal (RNF03)
-
-- Senha sempre BCrypt (`PasswordEncoder`), nunca em texto puro, nunca em log ou response.
-- Permissões: enum `Permissao` + mapa fixo por perfil (SPEC-01 §5). Controllers usam `@PreAuthorize("hasAuthority('CLIENTE_CRIAR')")`, anotação pronta do Spring Security.
-- Visibilidade: toda listagem passa pelo `EscopoCarteira` (SPEC-01 §6). VENDEDOR vê só o que é dele; GERENTE, o da equipe; ADMIN, tudo (RF15, RF22).
-
-## 7. Seeds
-
-Classes que rodam no start (via `CommandLineRunner`), idempotentes, usando o
-**Template Method** `SeedBase` (SPEC-01 §7):
+## 7. Seeds (executam no start, idempotentes, pacote `config/seed`)
 
 | Seed | Conteúdo | Dono |
 |------|----------|------|
-| `SeedAdmin` (RF32) | admin inicial com `trocarSenha=true`, credenciais em variável de ambiente | SPEC-01 |
-| `SeedMotivosPerda` (RF29) | `preço`, `concorrente`, `sem verba`, `sem resposta` | SPEC-03 |
+| Admin inicial (RF32) | usuário ADMIN com `trocarSenha=true`, credenciais via variável de ambiente | SPEC-01 |
+| Permissões RBAC | tabela `permissao` + `perfil_permissao` (catálogo na SPEC-01 §6) | SPEC-01 |
+| Motivos de perda (RF29) | `preço, concorrente, sem verba, sem resposta` | SPEC-03 |
 
-## 8. Testes e definição de pronto
+## 8. Testes e definição de pronto (auditoria)
 
-1. `./mvnw verify` verde, sem pular teste.
-2. Teste unitário por regra RN-xx (JUnit 5 + Mockito).
-3. Teste de integração dos endpoints: caminho feliz + 403 + 404 + 422 (MockMvc, H2 no profile `test`).
+Uma spec só é dada como pronta quando:
+
+1. `./mvnw verify` verde no CI local (sem pular testes).
+2. Teste unitário para cada regra RN-xx da spec (JUnit 5 + Mockito, service isolado).
+3. Teste de integração dos endpoints felizes + erros 403/404/422 (`@SpringBootTest` + MockMvc, banco H2 em memória no profile `test`).
 4. Checklist de auditoria da spec preenchido no PR.
+5. Nenhum acesso cruzado a repository de outro módulo (verificável por `grep` nos imports).
 
 ## 9. Configuração
 
-- Profiles: `dev` (MySQL, `ddl-auto=update`) e `test` (H2, `create-drop`).
-- Variáveis: `DB_*` (já existem), `JWT_SECRET`, `SEED_ADMIN_EMAIL`, `SEED_ADMIN_SENHA`.
-- Dependências novas permitidas: `spring-boot-starter-validation`, `jjwt`, `opencsv`, H2 (test). Fora isso, combinar no grupo.
+- Profiles: `dev` (MySQL local, `ddl-auto=update`), `test` (H2, `create-drop`). Produção fica para a fase de deploy.
+- Variáveis: `DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD` (já no `application.properties`), `JWT_SECRET`, `JWT_EXPIRACAO_HORAS=8`, `SEED_ADMIN_EMAIL`, `SEED_ADMIN_SENHA`.
+- Dependências novas permitidas nesta fase: `spring-boot-starter-validation`, `jjwt` (ou `spring-security-oauth2-jose`), `opencsv` (SPEC-04). Qualquer outra: discutir no grupo.
