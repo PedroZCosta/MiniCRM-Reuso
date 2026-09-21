@@ -1,6 +1,7 @@
 package com.miniCRM.miniCRM.exception;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -50,6 +51,12 @@ public class ApiExceptionHandler {
                 .toList();
         return ResponseEntity.badRequest().body(new ErroResponse(
                 LocalDateTime.now(), 400, "REQUISICAO_INVALIDA", "Campos inválidos", detalhes));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErroResponse> acessoNegado(AccessDeniedException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ErroResponse.de(403, "ACESSO_NEGADO", "Você não tem permissão para esta ação"));
     }
 
 
