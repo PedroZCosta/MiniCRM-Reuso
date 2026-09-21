@@ -5,7 +5,9 @@ import com.miniCRM.miniCRM.dto.auth.UsuarioCriarResponse;
 import com.miniCRM.miniCRM.dto.auth.UsuarioPerfilRequest;
 import com.miniCRM.miniCRM.dto.auth.UsuarioResponse;
 import com.miniCRM.miniCRM.dto.auth.UsuarioAtualizarRequest;
+import com.miniCRM.miniCRM.dto.comum.PageResponse;
 import com.miniCRM.miniCRM.model.Usuario;
+import com.miniCRM.miniCRM.model.enums.PerfilUsuario;
 import com.miniCRM.miniCRM.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,10 +36,13 @@ public class UsuarioController {
 
 
 
-    @GetMapping()
+    @GetMapping
     @PreAuthorize("hasAuthority('USUARIO_VER')")
-    public List<UsuarioResponse> listarUsuarios() {
-        return usuarioService.listarUsuarios();
+    public PageResponse<UsuarioResponse> listarUsuarios(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) PerfilUsuario perfil,
+            @RequestParam(required = false) Boolean ativo) {
+        return usuarioService.listarUsuarios(page, perfil, ativo);
     }
 
 

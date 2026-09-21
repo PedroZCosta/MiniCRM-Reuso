@@ -1,26 +1,47 @@
 package com.miniCRM.miniCRM.security;
 
+import com.miniCRM.miniCRM.model.Usuario;
+import com.miniCRM.miniCRM.repository.UsuarioRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Singleton nº 1 do trabalho (SPEC-01 §6): o Spring cria UMA instância
- * (escopo padrão de @Service) e injeta a mesma em todos os módulos.
- *
- * STUB: devolve "sem filtro" até a SPEC-01 implementar com o usuário do JWT.
- * Quem consome (SPEC-02/03/04) já pode compilar e mockar nos testes.
+ * Singleton nº 1 (SPEC-01 §6). O Spring cria UMA instancia de @Service e injeta a mesma
+ * em clientes, funil, tarefas e relatorios: o container controla a instancia unica.
  */
 @Service
 public class EscopoCarteira {
 
-    /**
-     * Ids de vendedor que o usuário logado enxerga (RF15, RF22):
-     * VENDEDOR -> [eu] · GERENTE -> [meus vendedores + eu] · ADMIN -> Optional.empty() = sem filtro.
-     */
+    private final UsuarioRepository usuarioRepository;
+
+    public EscopoCarteira(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
+    }
+
+    /** VENDEDOR -> [eu] · GERENTE -> [meus vendedores + eu] · ADMIN -> vazio, ou seja, sem filtro. */
     public Optional<List<Integer>> vendedoresVisiveis() {
-        // TODO SPEC-01: ler o usuário autenticado e montar a lista real
-        return Optional.empty();
+        Usuario logado = usuarioLogado();
+
+        return switch (logado.getPerfil()) {
+            case ADMIN -> Optional.empty();
+
+            case GERENTE -> {
+                List<Integer> ids = new ArrayList<>();
+                ids.add(logado.getIdUsuario());
+                usuarioRepository.findByGerente(logado)
+                        .forEach(vendedor -> ids.add(vendedor.getIdUsuario()));
+                yield Optional.of(ids);
+            }
+
+            case VENDEDOR -> Optional.of(List.of(logado.getIdUsuario()));
+        };
+    }
+
+    private Usuario usuarioLogado() {
+        return (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

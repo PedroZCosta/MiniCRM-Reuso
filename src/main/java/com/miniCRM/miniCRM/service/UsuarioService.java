@@ -1,6 +1,12 @@
 package com.miniCRM.miniCRM.service;
 
 import com.miniCRM.miniCRM.dto.auth.*;
+import com.miniCRM.miniCRM.dto.comum.PageResponse;
+import com.miniCRM.miniCRM.model.enums.PerfilUsuario;
+import com.miniCRM.miniCRM.security.EscopoCarteira;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import com.miniCRM.miniCRM.exception.ConflitoException;
 import com.miniCRM.miniCRM.exception.RecursoNaoEncontradoException;
 import com.miniCRM.miniCRM.exception.RegraNegocioException;
@@ -10,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.miniCRM.miniCRM.model.enums.PerfilUsuario.*;
@@ -17,12 +24,19 @@ import static com.miniCRM.miniCRM.model.enums.PerfilUsuario.*;
 @Service
 public class UsuarioService {
 
+    // pagina fixa de 20 (RF18).
+    private static final int TAMANHO_PAGINA = 20;
+
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EscopoCarteira escopoCarteira;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+    public UsuarioService(UsuarioRepository usuarioRepository,
+                          PasswordEncoder passwordEncoder,
+                          EscopoCarteira escopoCarteira) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.escopoCarteira = escopoCarteira;
     }
 
     public UsuarioCriarResponse criarUsuario(UsuarioCriarRequest request, Usuario logado) {
@@ -65,10 +79,18 @@ public class UsuarioService {
         return "Crm" + UUID.randomUUID().toString().replace("-", "").substring(0, 8);
     }
 
-    public List<UsuarioResponse> listarUsuarios() {
-        return usuarioRepository.findAll().stream()
-                .map(UsuarioResponse::de)
-                .toList();
+    public PageResponse<UsuarioResponse> listarUsuarios(int pagina, PerfilUsuario perfil, Boolean ativo) {
+        // gerente so enxerga a propria carteira; admin nao tem filtro.
+        Optional<List<Integer>> visiveis = escopoCarteira.vendedoresVisiveis();
+
+        Page<Usuario> page = usuarioRepository.buscar(
+                perfil,
+                ativo,
+                visiveis.isEmpty(),
+                visiveis.orElse(List.of()),
+                PageRequest.of(pagina, TAMANHO_PAGINA, Sort.by("idUsuario")));
+
+        return PageResponse.de(page.map(UsuarioResponse::de));
     }
 
     public UsuarioResponse editarUsuario(Integer id, UsuarioAtualizarRequest usuarioAtualizarRequest) {
