@@ -1,0 +1,82 @@
+package com.miniCRM.miniCRM.controller;
+
+import com.miniCRM.miniCRM.dto.auth.UsuarioCriarRequest;
+import com.miniCRM.miniCRM.dto.auth.UsuarioCriarResponse;
+import com.miniCRM.miniCRM.dto.auth.UsuarioPerfilRequest;
+import com.miniCRM.miniCRM.dto.auth.UsuarioResponse;
+import com.miniCRM.miniCRM.dto.auth.UsuarioAtualizarRequest;
+import com.miniCRM.miniCRM.dto.comum.PageResponse;
+import com.miniCRM.miniCRM.model.Usuario;
+import com.miniCRM.miniCRM.model.enums.PerfilUsuario;
+import com.miniCRM.miniCRM.service.UsuarioService;
+import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/usuarios")
+public class UsuarioController {
+
+    private final UsuarioService usuarioService;
+
+    public UsuarioController(UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
+    }
+
+
+    @PostMapping
+    @PreAuthorize("hasAuthority('USUARIO_CRIAR')")
+    public UsuarioCriarResponse criarUsuario(@Valid @RequestBody UsuarioCriarRequest request,
+                                             @AuthenticationPrincipal Usuario logado) {
+        return usuarioService.criarUsuario(request, logado);
+    }
+
+
+
+    @GetMapping
+    @PreAuthorize("hasAuthority('USUARIO_VER')")
+    public PageResponse<UsuarioResponse> listarUsuarios(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) PerfilUsuario perfil,
+            @RequestParam(required = false) Boolean ativo) {
+        return usuarioService.listarUsuarios(page, perfil, ativo);
+    }
+
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('USUARIO_EDITAR')")
+    public UsuarioResponse editarUsuario(@PathVariable Integer id,
+                                         @Valid @RequestBody UsuarioAtualizarRequest request) {
+        return usuarioService.editarUsuario(id ,request);
+    }
+
+
+    @PatchMapping("/{id}/desativar")
+    @PreAuthorize("hasAuthority('USUARIO_DESATIVAR')")
+    public void desativarUsuario(@PathVariable Integer id,
+                                 @AuthenticationPrincipal Usuario logado) {
+        usuarioService.desativarUsuario(id, logado);
+    }
+
+
+    @PatchMapping("/{id}/reativar")
+    @PreAuthorize("hasAuthority('USUARIO_DESATIVAR')")
+    public void reativarUsuario(@PathVariable Integer id) {
+        usuarioService.reativarUsuario(id);
+    }
+
+
+    @PatchMapping("/{id}/perfil")
+    @PreAuthorize("hasAuthority('USUARIO_ALTERAR_PERFIL')")
+    public UsuarioResponse alterarPerfil(@PathVariable Integer id,
+                                         @Valid @RequestBody UsuarioPerfilRequest request,
+                                         @AuthenticationPrincipal Usuario logado) {
+        return usuarioService.alterarPerfil(id, request, logado);
+    }
+
+
+}
+
