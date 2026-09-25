@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Plus, Pencil, Search } from 'lucide-react'
 import Avatar from '../components/Avatar'
+import UsuarioFormulario from '../components/usuarios/UsuarioFormulario'
+import SenhaProvisoria from '../components/usuarios/SenhaProvisoria'
 import { desativarUsuario, listarUsuarios, reativarUsuario } from '../api/usuarios'
-import { ErroApi } from '../api/http'
+import { ErroApi, sessao } from '../api/http'
 import type { UsuarioResponse } from '../api/tipos'
 
 // cada perfil tem a sua cor de etiqueta.
@@ -13,11 +15,19 @@ const corDoPerfil: Record<string, string> = {
 }
 
 export default function Usuarios() {
+  const logado = sessao.usuario() as UsuarioResponse
+
   const [usuarios, setUsuarios] = useState<UsuarioResponse[]>([])
   const [total, setTotal] = useState(0)
   const [busca, setBusca] = useState('')
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
+
+  // quem esta aberto na tela agora.
+  const [criando, setCriando] = useState(false)
+  const [editando, setEditando] = useState<UsuarioResponse | null>(null)
+  const [senhaNova, setSenhaNova] = useState('')
+  const [aviso, setAviso] = useState('')
 
   async function carregar() {
     setCarregando(true)
@@ -38,12 +48,21 @@ export default function Usuarios() {
     carregar()
   }, [])
 
+  // o aviso verde some sozinho depois de tres segundos.
+  useEffect(() => {
+    if (!aviso) return
+    const relogio = setTimeout(() => setAviso(''), 3000)
+    return () => clearTimeout(relogio)
+  }, [aviso])
+
   async function alternarSituacao(usuario: UsuarioResponse) {
     try {
       if (usuario.ativo) {
         await desativarUsuario(usuario.idUsuario)
+        setAviso('Usuário desativado')
       } else {
         await reativarUsuario(usuario.idUsuario)
+        setAviso('Usuário reativado')
       }
       // recarrega para a tela mostrar o que o banco realmente gravou.
       carregar()
@@ -52,12 +71,24 @@ export default function Usuarios() {
     }
   }
 
+  function aoSalvarFormulario(senhaProvisoria?: string) {
+    setCriando(false)
+    setEditando(null)
+    if (senhaProvisoria) setSenhaNova(senhaProvisoria)
+    else setAviso('Alterações salvas')
+    carregar()
+  }
+
   // o filtro acontece aqui na tela, sobre a pagina que ja veio.
   const visiveis = usuarios.filter(
     (u) =>
       u.nome.toLowerCase().includes(busca.toLowerCase()) ||
       u.email.toLowerCase().includes(busca.toLowerCase()),
   )
+
+  // vendedor nao cria ninguem, entao nem ve o botao.
+  const podeCriar = logado?.perfil !== 'VENDEDOR'
+  const podeMexerEmConta = logado?.perfil === 'ADMIN'
 
   return (
     <>
@@ -76,10 +107,12 @@ export default function Usuarios() {
 
         <span className="text-xs text-muted">{total} usuários · 3 perfis</span>
 
-        <button className="btn btn-pri">
-          <Plus size={16} />
-          Novo usuário
-        </button>
+        {podeCriar && (
+          <button className="btn btn-pri" onClick={() => setCriando(true)}>
+            <Plus size={16} />
+            Novo usuário
+          </button>
+        )}
       </div>
 
       {erro && (
@@ -138,16 +171,24 @@ export default function Usuarios() {
                 </td>
                 <td>
                   <div className="flex justify-end gap-1">
-                    <button className="btn btn-sm">
-                      <Pencil size={14} />
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => alternarSituacao(usuario)}
-                      className={`btn btn-sm ${usuario.ativo ? 'btn-danger' : ''}`}
-                    >
-                      {usuario.ativo ? 'Desativar' : 'Reativar'}
-                    </button>
+                    {podeMexerEmConta && (
+                      <>
+                        <button className="btn btn-sm" onClick={() => setEditando(usuario)}>
+                          <Pencil size={14} />
+                          Editar
+                        </button>
+
+                        {/* ninguem desativa a propria conta (RN-07). */}
+                        {usuario.idUsuario !== logado?.idUsuario && (
+                          <button
+                            onClick={() => alternarSituacao(usuario)}
+                            className={`btn btn-sm ${usuario.ativo ? 'btn-danger' : ''}`}
+                          >
+                            {usuario.ativo ? 'Desativar' : 'Reativar'}
+                          </button>
+                        )}
+                      </>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -166,6 +207,27 @@ export default function Usuarios() {
           </div>
         </div>
       </div>
+
+      {criando && (
+        <UsuarioFormulario
+          perfilDeQuemCria={logado.perfil}
+          aoFechar={() => setCriando(false)}
+          aoSalvar={aoSalvarFormulario}
+        />
+      )}
+
+      {editando && (
+        <UsuarioFormulario
+          usuario={editando}
+          perfilDeQuemCria={logado.perfil}
+          aoFechar={() => setEditando(null)}
+          aoSalvar={aoSalvarFormulario}
+        />
+      )}
+
+      {senhaNova && <SenhaProvisoria senha={senhaNova} aoFechar={() => setSenhaNova('')} />}
+
+      {aviso && <div className="toast">{aviso}</div>}
     </>
   )
 }

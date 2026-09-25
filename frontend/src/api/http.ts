@@ -55,7 +55,8 @@ export async function requisitar<T>(caminho: string, opcoes: RequestInit = {}): 
     )
   }
 
-  // 204 nao tem corpo nenhum para ler.
-  if (resposta.status === 204) return undefined as T
-  return resposta.json() as Promise<T>
+  // os endpoints que devolvem void respondem sem corpo nenhum.
+  // ler como texto primeiro evita quebrar o JSON.parse no vazio.
+  const texto = await resposta.text()
+  return (texto ? JSON.parse(texto) : undefined) as T
 }

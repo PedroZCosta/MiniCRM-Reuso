@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { login } from '../api/auth'
 import { ErroApi } from '../api/http'
 
@@ -19,8 +19,10 @@ export default function Login() {
     setEnviando(true)
 
     try {
-      await login(email, senha)
-      navegar('/usuarios', { replace: true })
+      const { usuario } = await login(email, senha)
+
+      // primeiro acesso: a senha e provisoria e precisa ser trocada.
+      navegar(usuario.trocarSenha ? '/trocar-senha' : '/usuarios', { replace: true })
     } catch (e) {
       // o backend ja manda a mensagem pronta, entao so mostramos ela.
       setErro(e instanceof ErroApi ? e.message : 'Servidor indisponível')
@@ -128,9 +130,9 @@ export default function Login() {
           </form>
 
           <div className="mt-4 flex items-center justify-between">
-            <a href="#" className="font-hand text-[15px] text-accent">
+            <Link to="/recuperar-senha" className="font-hand text-[15px] text-accent">
               Esqueci minha senha
-            </a>
+            </Link>
           </div>
 
           <div className="mt-5 rounded-[5px] border-[1.5px] border-dashed border-accent bg-accent-soft px-3.5 py-3 text-xs leading-relaxed text-accent-ink">
