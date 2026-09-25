@@ -1,20 +1,33 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
+import { login } from '../api/auth'
+import { ErroApi } from '../api/http'
 
 export default function Login() {
   // cada campo do formulario vive num estado.
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [erro, setErro] = useState('')
+  const [enviando, setEnviando] = useState(false)
   const navegar = useNavigate()
 
-  function entrar(evento: React.FormEvent) {
+  // o async aqui porque a api demora a responder e nao da para travar a tela.
+  async function entrar(evento: React.FormEvent) {
     // sem isso o navegador recarrega a pagina inteira ao enviar o formulario.
     evento.preventDefault()
     setErro('')
+    setEnviando(true)
 
-    // a chamada real para POST /api/v1/auth/login entra aqui depois.
-    navegar('/usuarios')
+    try {
+      await login(email, senha)
+      navegar('/usuarios', { replace: true })
+    } catch (e) {
+      // o backend ja manda a mensagem pronta, entao so mostramos ela.
+      setErro(e instanceof ErroApi ? e.message : 'Servidor indisponível')
+    } finally {
+      // o botao volta ao normal tendo dado certo ou nao.
+      setEnviando(false)
+    }
   }
 
   return (
@@ -105,8 +118,12 @@ export default function Login() {
               </div>
             )}
 
-            <button type="submit" className="btn btn-pri btn-block mt-1 h-[42px] text-sm">
-              Entrar
+            <button
+              type="submit"
+              disabled={enviando}
+              className="btn btn-pri btn-block mt-1 h-[42px] text-sm"
+            >
+              {enviando ? 'Entrando...' : 'Entrar'}
             </button>
           </form>
 
