@@ -37,9 +37,10 @@ public class ClienteService {
     private final UsuarioRepository usuarioRepository;
     private final EscopoCarteira escopoCarteira;
 
-    public Cliente criar(CriarClienteRequest dto, Integer idUsuarioLogado, PerfilUsuario perfilLogado) {
+    public Cliente criar(CriarClienteRequest dto, Integer idUsuarioLogado) {
         validarNomeEmail(dto.nome(), dto.email());
 
+        PerfilUsuario perfilLogado = buscarUsuarioLogado(idUsuarioLogado).getPerfil();
         Integer idVendedor = perfilLogado == PerfilUsuario.VENDEDOR
                 ? idUsuarioLogado
                 : dto.idVendedor() != null ? dto.idVendedor() : idUsuarioLogado;
@@ -57,7 +58,8 @@ public class ClienteService {
     }
 
     public Page<Cliente> listar(String busca, StatusCliente status, Integer vendedorId,
-                                 boolean incluirExcluidos, int page, PerfilUsuario perfilLogado) {
+                                 boolean incluirExcluidos, int page, Integer idUsuarioLogado) {
+        PerfilUsuario perfilLogado = buscarUsuarioLogado(idUsuarioLogado).getPerfil();
         boolean podeVerExcluidos = incluirExcluidos
                 && (perfilLogado == PerfilUsuario.GERENTE || perfilLogado == PerfilUsuario.ADMIN);
 
@@ -70,7 +72,8 @@ public class ClienteService {
                 .and(vendedorId != null ? ClienteSpecs.doVendedor(vendedorId) : null)
                 .and(escopoCarteira.vendedoresVisiveis().map(ClienteSpecs::dentroDoEscopo).orElse(null));
 
-        return clienteRepository.findAll(spec, PageRequest.of(page, TAMANHO_PAGINA, Sort.by("nome")));
+        int paginaSegura = Math.max(page, 0);
+        return clienteRepository.findAll(spec, PageRequest.of(paginaSegura, TAMANHO_PAGINA, Sort.by("nome")));
     }
 
     public Cliente buscarPorId(Integer idCliente) {
@@ -95,7 +98,8 @@ public class ClienteService {
         clienteRepository.save(cliente);
     }
 
-    public Cliente transferir(Integer idCliente, Integer novoVendedorId, PerfilUsuario perfilLogado) {
+    public Cliente transferir(Integer idCliente, Integer novoVendedorId, Integer idUsuarioLogado) {
+        PerfilUsuario perfilLogado = buscarUsuarioLogado(idUsuarioLogado).getPerfil();
         if (perfilLogado == PerfilUsuario.VENDEDOR) {
             throw new SemPermissaoException("Vendedor não pode transferir carteira");
         }
@@ -138,6 +142,11 @@ public class ClienteService {
             throw new RecursoNaoEncontradoException("Cliente não encontrado");
         }
         return cliente;
+    }
+
+    private Usuario buscarUsuarioLogado(Integer idUsuarioLogado) {
+        return usuarioRepository.findById(idUsuarioLogado)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
     }
 
     private Usuario buscarVendedorAtivo(Integer idVendedor) {

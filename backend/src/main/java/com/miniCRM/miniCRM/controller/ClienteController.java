@@ -7,11 +7,9 @@ import com.miniCRM.miniCRM.dto.cliente.TransferirClienteRequest;
 import com.miniCRM.miniCRM.dto.cliente.VendedorResumo;
 import com.miniCRM.miniCRM.dto.comum.HistoricoItem;
 import com.miniCRM.miniCRM.dto.comum.PageResponse;
-import com.miniCRM.miniCRM.exception.RecursoNaoEncontradoException;
 import com.miniCRM.miniCRM.model.Cliente;
 import com.miniCRM.miniCRM.model.Usuario;
 import com.miniCRM.miniCRM.model.enums.StatusCliente;
-import com.miniCRM.miniCRM.repository.UsuarioRepository;
 import com.miniCRM.miniCRM.service.ClienteService;
 import com.miniCRM.miniCRM.service.HistoricoService;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +36,6 @@ public class ClienteController {
 
     private final ClienteService clienteService;
     private final HistoricoService historicoService;
-    private final UsuarioRepository usuarioRepository;
 
     @GetMapping
     @PreAuthorize("hasAuthority('CLIENTE_VER')")
@@ -49,15 +46,14 @@ public class ClienteController {
             @RequestParam(defaultValue = "false") boolean incluirExcluidos,
             @RequestParam(defaultValue = "0") int page) {
         Page<Cliente> pagina = clienteService.listar(
-                busca, status, vendedorId, incluirExcluidos, page, usuarioLogado().getPerfil());
+                busca, status, vendedorId, incluirExcluidos, page, usuarioLogadoId());
         return paraPageResponse(pagina);
     }
 
     @PostMapping
     @PreAuthorize("hasAuthority('CLIENTE_CRIAR')")
     public ResponseEntity<ClienteResponse> criar(@RequestBody CriarClienteRequest request) {
-        Usuario logado = usuarioLogado();
-        Cliente cliente = clienteService.criar(request, logado.getIdUsuario(), logado.getPerfil());
+        Cliente cliente = clienteService.criar(request, usuarioLogadoId());
         return ResponseEntity.status(HttpStatus.CREATED).body(paraResponse(cliente));
     }
 
@@ -83,7 +79,7 @@ public class ClienteController {
     @PatchMapping("/{id}/transferir")
     @PreAuthorize("hasAuthority('CLIENTE_TRANSFERIR')")
     public ClienteResponse transferir(@PathVariable Integer id, @RequestBody TransferirClienteRequest request) {
-        Cliente cliente = clienteService.transferir(id, request.novoVendedorId(), usuarioLogado().getPerfil());
+        Cliente cliente = clienteService.transferir(id, request.novoVendedorId(), usuarioLogadoId());
         return paraResponse(cliente);
     }
 
@@ -94,10 +90,8 @@ public class ClienteController {
         return historicoService.listar(id, page);
     }
 
-    private Usuario usuarioLogado() {
-        Integer id = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
-        return usuarioRepository.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
+    private Integer usuarioLogadoId() {
+        return Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
     private PageResponse<ClienteResponse> paraPageResponse(Page<Cliente> pagina) {

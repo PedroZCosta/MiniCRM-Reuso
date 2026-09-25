@@ -33,12 +33,13 @@ public class HistoricoService {
         itens.addAll(historicoOu(() -> tarefaConsultaService.historicoDoCliente(idCliente)));
         itens.sort(Comparator.comparing(HistoricoItem::data).reversed());
 
+        int paginaSegura = Math.max(page, 0);
         int totalRegistros = itens.size();
         int totalPaginas = (int) Math.ceil(totalRegistros / (double) TAMANHO_PAGINA);
-        int inicio = Math.min(page * TAMANHO_PAGINA, totalRegistros);
+        int inicio = Math.min(paginaSegura * TAMANHO_PAGINA, totalRegistros);
         int fim = Math.min(inicio + TAMANHO_PAGINA, totalRegistros);
 
-        return new PageResponse<>(itens.subList(inicio, fim), page, TAMANHO_PAGINA, totalPaginas, totalRegistros);
+        return new PageResponse<>(itens.subList(inicio, fim), paginaSegura, TAMANHO_PAGINA, totalPaginas, totalRegistros);
     }
 
     private List<HistoricoItem> interacoesDoCliente(Integer idCliente) {

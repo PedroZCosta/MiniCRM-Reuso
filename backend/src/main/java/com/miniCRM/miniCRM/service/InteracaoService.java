@@ -52,7 +52,8 @@ public class InteracaoService {
 
     public Page<Interacao> listar(Integer idCliente, int page) {
         clienteService.buscarPorId(idCliente);
+        int paginaSegura = Math.max(page, 0);
         return interacaoRepository.findByClienteIdClienteOrderByDataInteracaoDesc(
-                idCliente, PageRequest.of(page, TAMANHO_PAGINA));
+                idCliente, PageRequest.of(paginaSegura, TAMANHO_PAGINA));
     }
 }
