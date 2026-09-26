@@ -26,6 +26,12 @@ public class ApiExceptionHandler {
                 .body(ErroResponse.de(404, "NAO_ENCONTRADO", e.getMessage()));
     }
 
+    @ExceptionHandler(SemPermissaoException.class)
+    public ResponseEntity<ErroResponse> semPermissao(SemPermissaoException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ErroResponse.de(403, "SEM_PERMISSAO", e.getMessage()));
+    }
+
     @ExceptionHandler(ConflitoException.class)
     public ResponseEntity<ErroResponse> conflito(ConflitoException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
