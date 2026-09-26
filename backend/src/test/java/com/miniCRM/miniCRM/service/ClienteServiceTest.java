@@ -1,5 +1,6 @@
 package com.miniCRM.miniCRM.service;
 
+import com.miniCRM.miniCRM.dto.cliente.ClienteResumo;
 import com.miniCRM.miniCRM.exception.RecursoNaoEncontradoException;
 import com.miniCRM.miniCRM.exception.RegraNegocioException;
 import com.miniCRM.miniCRM.model.Cliente;
@@ -136,5 +137,46 @@ class ClienteServiceTest {
 
         assertThatThrownBy(() -> clienteService.transferir(7, 2, 99))
                 .isInstanceOf(RegraNegocioException.class);
+    }
+
+    @Test
+    @DisplayName("buscarAtivo retorna ClienteResumo do cliente nao excluido")
+    void buscarAtivoRetornaResumoDoClienteNaoExcluido() {
+        Cliente cliente = new Cliente();
+        cliente.setIdCliente(8);
+        cliente.setNome("Construtora Horizonte");
+        cliente.setEmail("contato@horizonte.com");
+        cliente.setEmpresa("Horizonte Ltda");
+        cliente.setStatus(StatusCliente.ATIVO);
+        cliente.setExcluido(false);
+
+        when(clienteRepository.findById(8)).thenReturn(Optional.of(cliente));
+
+        ClienteResumo resumo = clienteService.buscarAtivo(8);
+
+        assertThat(resumo).isEqualTo(new ClienteResumo(8, "Construtora Horizonte",
+                "contato@horizonte.com", "Horizonte Ltda", StatusCliente.ATIVO));
+    }
+
+    @Test
+    @DisplayName("buscarAtivo em cliente excluido da erro de regra de negocio")
+    void buscarAtivoEmClienteExcluidoDaErro() {
+        Cliente cliente = new Cliente();
+        cliente.setIdCliente(9);
+        cliente.setExcluido(true);
+
+        when(clienteRepository.findById(9)).thenReturn(Optional.of(cliente));
+
+        assertThatThrownBy(() -> clienteService.buscarAtivo(9))
+                .isInstanceOf(RegraNegocioException.class);
+    }
+
+    @Test
+    @DisplayName("buscarAtivo em id inexistente da 404")
+    void buscarAtivoEmIdInexistenteDa404() {
+        when(clienteRepository.findById(11)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> clienteService.buscarAtivo(11))
+                .isInstanceOf(RecursoNaoEncontradoException.class);
     }
 }

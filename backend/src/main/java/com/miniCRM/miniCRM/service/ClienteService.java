@@ -1,5 +1,6 @@
 package com.miniCRM.miniCRM.service;
 
+import com.miniCRM.miniCRM.dto.cliente.ClienteResumo;
 import com.miniCRM.miniCRM.dto.cliente.CriarClienteRequest;
 import com.miniCRM.miniCRM.dto.cliente.EditarClienteRequest;
 import com.miniCRM.miniCRM.exception.RecursoNaoEncontradoException;
@@ -28,7 +29,7 @@ import java.util.regex.Pattern;
  */
 @Service
 @RequiredArgsConstructor
-public class ClienteService {
+public class ClienteService implements ClienteConsultaService {
 
     private static final Pattern EMAIL_VALIDO = Pattern.compile("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$");
     private static final int TAMANHO_PAGINA = 20;
@@ -120,11 +121,19 @@ public class ClienteService {
         }
     }
 
+    /** Contrato público (ClienteConsultaService) consumido pela SPEC-03/04. */
+    @Override
+    public ClienteResumo buscarAtivo(Integer idCliente) {
+        Cliente cliente = buscarClienteAtivo(idCliente);
+        return new ClienteResumo(cliente.getIdCliente(), cliente.getNome(),
+                cliente.getEmail(), cliente.getEmpresa(), cliente.getStatus());
+    }
+
     /**
-     * Usado pela SPEC-03 ao criar oportunidade e pela SPEC-04 ao criar tarefa.
+     * Uso interno do módulo (ex.: SPEC-03 ao vincular a entidade na oportunidade).
      * 404 se não existir; 422 se excluido=true (não se cria nada para cliente excluído).
      */
-    public Cliente buscarAtivo(Integer idCliente) {
+    public Cliente buscarClienteAtivo(Integer idCliente) {
         Cliente cliente = clienteRepository.findById(idCliente)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Cliente não encontrado"));
         if (cliente.getExcluido()) {
