@@ -1,19 +1,23 @@
 package com.miniCRM.miniCRM.service;
 
 import com.miniCRM.miniCRM.dto.cliente.CriarInteracaoRequest;
+import com.miniCRM.miniCRM.dto.cliente.ReuniaoAgendada;
 import com.miniCRM.miniCRM.exception.RecursoNaoEncontradoException;
 import com.miniCRM.miniCRM.exception.RegraNegocioException;
 import com.miniCRM.miniCRM.model.Cliente;
 import com.miniCRM.miniCRM.model.Interacao;
 import com.miniCRM.miniCRM.model.Usuario;
+import com.miniCRM.miniCRM.model.enums.TipoInteracao;
 import com.miniCRM.miniCRM.repository.InteracaoRepository;
 import com.miniCRM.miniCRM.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -55,5 +59,14 @@ public class InteracaoService {
         int paginaSegura = Math.max(page, 0);
         return interacaoRepository.findByClienteIdClienteOrderByDataInteracaoDesc(
                 idCliente, PageRequest.of(paginaSegura, TAMANHO_PAGINA));
+    }
+
+    /** Consulta da SPEC-04 (job de notificações): reuniões marcadas dentro da janela, de qualquer cliente. */
+    @Transactional(readOnly = true)
+    public List<ReuniaoAgendada> reunioesAgendadasEntre(LocalDateTime inicio, LocalDateTime fim) {
+        return interacaoRepository.agendadasEntre(TipoInteracao.REUNIAO, inicio, fim).stream()
+                .map(i -> new ReuniaoAgendada(
+                        i.getUsuario().getIdUsuario(), i.getCliente().getNome(), i.getDataInteracao()))
+                .toList();
     }
 }

@@ -6,6 +6,7 @@ const titulosPorRota: Record<string, { titulo: string; caminho: string }> = {
   "/clientes": { titulo: "Clientes", caminho: "Carteira · Clientes" },
   "/funil": { titulo: "Funil de oportunidades", caminho: "Vendas · Funil" },
   "/tarefas": { titulo: "Tarefas", caminho: "Agenda · Tarefas" },
+  "/notificacoes": { titulo: "Notificações", caminho: "Agenda · Notificações" },
 };
 
 export default function Topbar() {

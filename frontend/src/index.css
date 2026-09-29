@@ -102,6 +102,7 @@ h1, h2, h3, h4 {
   .badge-green { background: var(--color-green-soft); color: var(--color-green); border-color: #bfe0cd; }
   .badge-slate { background: var(--color-slate-soft); color: var(--color-slate-ink); border-color: #d8d5cc; }
   .badge-signal { background: var(--color-accent-soft); color: var(--color-accent-ink); border-color: #c7ddf6; }
+  .badge-red { background: var(--color-red-soft); color: var(--color-red); border-color: #e3b6ae; }
   .badge-violet { background: #f0ecf7; color: #7a5ea8; border-color: #d8ccec; }
 
   /* item do menu lateral */

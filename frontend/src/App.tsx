@@ -5,8 +5,10 @@ import ClienteDetalhe from './pages/ClienteDetalhe'
 import Clientes from './pages/Clientes'
 import Funil from './pages/Funil'
 import Login from './pages/Login'
+import Notificacoes from './pages/Notificacoes'
 import OportunidadeDetalhe from './pages/OportunidadeDetalhe'
 import RecuperarSenha from './pages/RecuperarSenha'
+import Tarefas from './pages/Tarefas'
 import TrocarSenha from './pages/TrocarSenha'
 import Usuarios from './pages/Usuarios'
 
@@ -41,6 +43,8 @@ export default function App() {
         <Route path="/clientes/:id" element={<ClienteDetalhe />} />
         <Route path="/funil" element={<Funil />} />
         <Route path="/funil/:id" element={<OportunidadeDetalhe />} />
+        <Route path="/tarefas" element={<Tarefas />} />
+        <Route path="/notificacoes" element={<Notificacoes />} />
       </Route>
     </Routes>
   )

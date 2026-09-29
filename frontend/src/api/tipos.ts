@@ -111,3 +111,41 @@ export type MotivoPerdaResponse = {
   idMotivo: number
   descricao: string
 }
+
+export type SituacaoTarefa = 'PENDENTE' | 'VENCIDA' | 'CONCLUIDA'
+
+export type FaixaTarefa = 'D15' | 'D1' | 'HOJE' | 'VENCIDA'
+
+export type TarefaResponse = {
+  idTarefa: number
+  titulo: string
+  descricao: string | null
+  // data pura, sem hora: 2026-09-10.
+  dataVencimento: string
+  situacao: SituacaoTarefa
+  vencida: boolean
+  concluida: boolean
+  concluidaEm: string | null
+  responsavel: string
+  idCliente: number | null
+  cliente: string | null
+  idOportunidade: number | null
+  oportunidade: string | null
+  criadoEm: string
+}
+
+export type TipoNotificacao = 'D15' | 'D1' | 'HOJE' | 'VENCIDA' | 'REUNIAO'
+
+export type NotificacaoResponse = {
+  idNotificacao: number
+  tipo: TipoNotificacao
+  mensagem: string
+  lida: boolean
+  geradaEm: string
+  // null nas notificacoes de reuniao, que nao tem tarefa.
+  idTarefa: number | null
+}
+
+export type ContadorNotificacoesResponse = {
+  naoLidas: number
+}

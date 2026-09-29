@@ -205,4 +205,29 @@ class ClienteServiceTest {
         assertThatThrownBy(() -> clienteService.buscarAtivo(11))
                 .isInstanceOf(RecursoNaoEncontradoException.class);
     }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    @DisplayName("contar por status sem escopo de vendedor nao falha e conta os tres status")
+    void contarPorStatusSemEscopoNaoFalha() {
+        when(clienteRepository.count(any(Specification.class))).thenReturn(2L);
+
+        var totais = clienteService.contarPorStatus(null);
+
+        assertThat(totais).containsOnlyKeys(StatusCliente.values());
+        assertThat(totais.values()).containsOnly(2L);
+        verify(clienteRepository, times(StatusCliente.values().length)).count(any(Specification.class));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    @DisplayName("contar por status com escopo de vendedores consulta uma vez por status")
+    void contarPorStatusComEscopoConsultaUmaVezPorStatus() {
+        when(clienteRepository.count(any(Specification.class))).thenReturn(1L);
+
+        var totais = clienteService.contarPorStatus(List.of(1, 2));
+
+        assertThat(totais.values()).containsOnly(1L);
+        verify(clienteRepository, times(StatusCliente.values().length)).count(any(Specification.class));
+    }
 }
