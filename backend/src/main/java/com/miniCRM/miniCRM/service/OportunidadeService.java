@@ -66,7 +66,7 @@ public class OportunidadeService {
         }
         validarCampos(request.titulo(), request.valorEstimado());
 
-        Cliente cliente = clienteService.buscarAtivo(request.idCliente());
+        Cliente cliente = clienteService.buscarClienteAtivo(request.idCliente());
         Usuario vendedor = definirVendedor(request.idVendedor());
 
         Oportunidade oportunidade = new Oportunidade();
