@@ -50,6 +50,12 @@ public class ApiExceptionHandler {
                 .body(ErroResponse.de(423, "USUARIO_BLOQUEADO", e.getMessage()));
     }
 
+    @ExceptionHandler(RequisicaoInvalidaException.class)
+    public ResponseEntity<ErroResponse> requisicaoInvalida(RequisicaoInvalidaException e) {
+        return ResponseEntity.badRequest()
+                .body(ErroResponse.de(400, "REQUISICAO_INVALIDA", e.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErroResponse> validacao(MethodArgumentNotValidException e) {
         List<String> detalhes = e.getBindingResult().getFieldErrors().stream()

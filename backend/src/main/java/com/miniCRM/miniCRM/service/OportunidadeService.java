@@ -9,6 +9,7 @@ import com.miniCRM.miniCRM.dto.funil.HistoricoEtapaResponse;
 import com.miniCRM.miniCRM.dto.funil.MotivoPerdaResponse;
 import com.miniCRM.miniCRM.dto.funil.MoverEtapaRequest;
 import com.miniCRM.miniCRM.dto.funil.OportunidadeDetalheResponse;
+import com.miniCRM.miniCRM.dto.funil.OportunidadeRelatorioLinha;
 import com.miniCRM.miniCRM.dto.funil.OportunidadeResponse;
 import com.miniCRM.miniCRM.dto.funil.TotalEtapa;
 import com.miniCRM.miniCRM.event.OportunidadeFechadaEvent;
@@ -243,6 +244,26 @@ public class OportunidadeService {
         return oportunidadeRepository.findByClienteIdClienteOrderByCriadoEmDesc(idCliente);
     }
 
+    /**
+     * RN-06/RF12: resultado completo do filtro, nunca paginado. RF21: o periodo filtra
+     * criadoEm (documentado tambem no repository, junto da query).
+     */
+    @Transactional(readOnly = true)
+    public List<OportunidadeRelatorioLinha> linhasParaRelatorio(EtapaOportunidade etapa, LocalDate inicio,
+                                                                LocalDate fim, List<Integer> vendedoresOuNull) {
+        LocalDateTime de = inicio != null ? inicio.atStartOfDay() : null;
+        LocalDateTime ate = fim != null ? fim.plusDays(1).atStartOfDay() : null;   // fim inclusivo
+
+        List<Oportunidade> oportunidades = (vendedoresOuNull == null)
+                ? oportunidadeRepository.paraRelatorio(etapa, de, ate)
+                : oportunidadeRepository.paraRelatorioDosVendedores(etapa, de, ate, vendedoresOuNull);
+
+        return oportunidades.stream()
+                .map(o -> new OportunidadeRelatorioLinha(o.getCliente().getNome(), o.getValorEstimado(),
+                        o.getEtapa(), o.getDataPrevista(), o.getVendedor().getNome()))
+                .toList();
+    }
+
     private void validarCampos(String titulo, BigDecimal valorEstimado) {
         if (titulo == null || titulo.isBlank()) {
             throw new RegraNegocioException("O título é obrigatório");
@@ -252,7 +273,11 @@ public class OportunidadeService {
         }
     }
 
-    private Oportunidade buscarNoEscopo(Integer idOportunidade) {
+    /**
+     * Uso interno do modulo + SPEC-04 ao vincular a entidade na tarefa (RN-01).
+     * 404 tanto para id inexistente quanto para registro fora do escopo de carteira.
+     */
+    public Oportunidade buscarNoEscopo(Integer idOportunidade) {
         Oportunidade oportunidade = oportunidadeRepository.findById(idOportunidade)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Oportunidade não encontrada"));
 

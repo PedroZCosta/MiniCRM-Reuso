@@ -52,8 +52,12 @@ public interface OportunidadeRepository extends JpaRepository<Oportunidade, Inte
             """)
     List<Oportunidade> listarDosVendedores(@Param("vendedores") List<Integer> vendedores);
 
+    // JOIN FETCH o.vendedor acrescentado para o ranking (SPEC-04 §4.2): neutro no result set
+    // (vendedor e optional=false, nullable=false - o INNER JOIN nao corta linha nenhuma) e
+    // mata o N+1 de o.getVendedor().getNome() fora de transacao.
     @Query("""
             SELECT o FROM Oportunidade o
+            JOIN FETCH o.vendedor
             WHERE o.fechadaEm >= :inicio AND o.fechadaEm < :fim
             """)
     List<Oportunidade> fechadasEntre(@Param("inicio") LocalDateTime inicio,
@@ -61,6 +65,7 @@ public interface OportunidadeRepository extends JpaRepository<Oportunidade, Inte
 
     @Query("""
             SELECT o FROM Oportunidade o
+            JOIN FETCH o.vendedor
             WHERE o.fechadaEm >= :inicio AND o.fechadaEm < :fim
               AND o.vendedor.idUsuario IN :vendedores
             """)
@@ -69,4 +74,37 @@ public interface OportunidadeRepository extends JpaRepository<Oportunidade, Inte
                                                  @Param("vendedores") List<Integer> vendedores);
 
     List<Oportunidade> findByClienteIdClienteOrderByCriadoEmDesc(Integer idCliente);
+
+    /**
+     * RF12/RN-06: resultado completo do filtro para o relatorio. RF21: o periodo filtra
+     * criadoEm, NAO fechadaEm - fechadaEm e null em toda oportunidade aberta, e filtrar por
+     * ele descartaria PROSPECCAO/CONTATO/PROPOSTA e tornaria o filtro ?etapa= inutil.
+     */
+    @Query("""
+            SELECT o FROM Oportunidade o
+            JOIN FETCH o.cliente
+            JOIN FETCH o.vendedor
+            WHERE (:etapa  IS NULL OR o.etapa = :etapa)
+              AND (:inicio IS NULL OR o.criadoEm >= :inicio)
+              AND (:fim    IS NULL OR o.criadoEm <  :fim)
+            ORDER BY o.criadoEm DESC
+            """)
+    List<Oportunidade> paraRelatorio(@Param("etapa") EtapaOportunidade etapa,
+                                     @Param("inicio") LocalDateTime inicio,
+                                     @Param("fim") LocalDateTime fim);
+
+    @Query("""
+            SELECT o FROM Oportunidade o
+            JOIN FETCH o.cliente
+            JOIN FETCH o.vendedor
+            WHERE (:etapa  IS NULL OR o.etapa = :etapa)
+              AND (:inicio IS NULL OR o.criadoEm >= :inicio)
+              AND (:fim    IS NULL OR o.criadoEm <  :fim)
+              AND o.vendedor.idUsuario IN :vendedores
+            ORDER BY o.criadoEm DESC
+            """)
+    List<Oportunidade> paraRelatorioDosVendedores(@Param("etapa") EtapaOportunidade etapa,
+                                                  @Param("inicio") LocalDateTime inicio,
+                                                  @Param("fim") LocalDateTime fim,
+                                                  @Param("vendedores") List<Integer> vendedores);
 }

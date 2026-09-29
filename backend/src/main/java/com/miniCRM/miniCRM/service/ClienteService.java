@@ -1,5 +1,6 @@
 package com.miniCRM.miniCRM.service;
 
+import com.miniCRM.miniCRM.dto.cliente.ClienteRelatorioLinha;
 import com.miniCRM.miniCRM.dto.cliente.ClienteResumo;
 import com.miniCRM.miniCRM.dto.cliente.CriarClienteRequest;
 import com.miniCRM.miniCRM.dto.cliente.EditarClienteRequest;
@@ -14,6 +15,7 @@ import com.miniCRM.miniCRM.repository.ClienteRepository;
 import com.miniCRM.miniCRM.repository.ClienteSpecs;
 import com.miniCRM.miniCRM.repository.UsuarioRepository;
 import com.miniCRM.miniCRM.security.EscopoCarteira;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,7 +23,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -127,6 +133,42 @@ public class ClienteService implements ClienteConsultaService {
         Cliente cliente = buscarClienteAtivo(idCliente);
         return new ClienteResumo(cliente.getIdCliente(), cliente.getNome(),
                 cliente.getEmail(), cliente.getEmpresa(), cliente.getStatus());
+    }
+
+    /** RF15: contagem por status recortada pelo escopo, para o DashboardFacade. */
+    @Override
+    public Map<StatusCliente, Long> contarPorStatus(List<Integer> vendedoresOuNull) {
+        Specification<Cliente> escopo = vendedoresOuNull != null
+                ? ClienteSpecs.dentroDoEscopo(vendedoresOuNull) : null;
+
+        Map<StatusCliente, Long> totais = new EnumMap<>(StatusCliente.class);
+        for (StatusCliente status : StatusCliente.values()) {
+            totais.put(status, clienteRepository.count(
+                    ClienteSpecs.naoExcluido().and(ClienteSpecs.comStatus(status)).and(escopo)));
+        }
+        return totais;
+    }
+
+    /**
+     * RN-06: resultado COMPLETO do filtro, nunca paginado. RF21: o periodo filtra criadoEm.
+     * @Transactional aqui e intencional: garante sessao unica durante o mapeamento do
+     * JOIN FETCH (esta e a primeira anotacao de transacao desta classe).
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<ClienteRelatorioLinha> linhasParaRelatorio(StatusCliente status, LocalDate inicio,
+                                                           LocalDate fim, List<Integer> vendedoresOuNull) {
+        LocalDateTime de = inicio != null ? inicio.atStartOfDay() : null;
+        LocalDateTime ate = fim != null ? fim.plusDays(1).atStartOfDay() : null;   // fim inclusivo
+
+        List<Cliente> clientes = (vendedoresOuNull == null)
+                ? clienteRepository.paraRelatorio(status, de, ate)
+                : clienteRepository.paraRelatorioDosVendedores(status, de, ate, vendedoresOuNull);
+
+        return clientes.stream()
+                .map(c -> new ClienteRelatorioLinha(c.getNome(), c.getEmail(), c.getTelefone(),
+                        c.getEmpresa(), c.getStatus(), c.getVendedor().getNome()))
+                .toList();
     }
 
     /**

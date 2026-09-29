@@ -1,5 +1,6 @@
 package com.miniCRM.miniCRM.model;
 
+import com.miniCRM.miniCRM.model.enums.SituacaoTarefa;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -64,4 +65,23 @@ public class Tarefa {
     @CreationTimestamp
     @Column(name = "criado_em", nullable = false, updatable = false)
     private LocalDateTime criadoEm;
+
+    /**
+     * RF28: "vencida" e SEMPRE calculada, nunca gravada. Recebe "hoje" para o teste poder
+     * mudar o relogio sem tocar no banco.
+     *
+     * <p>Sem prefixo get/is de proposito (igual a EtapaOportunidade.fechada()): assim nem o
+     * Hibernate nem o Jackson tratam isto como propriedade, e ddl-auto=update nao cria coluna.
+     */
+    public boolean vencida(LocalDate hoje) {
+        return !Boolean.TRUE.equals(concluida) && dataVencimento.isBefore(hoje);
+    }
+
+    /** RN-03: PENDENTE | VENCIDA | CONCLUIDA, sempre derivada do estado + da data. */
+    public SituacaoTarefa situacao(LocalDate hoje) {
+        if (Boolean.TRUE.equals(concluida)) {
+            return SituacaoTarefa.CONCLUIDA;
+        }
+        return vencida(hoje) ? SituacaoTarefa.VENCIDA : SituacaoTarefa.PENDENTE;
+    }
 }
