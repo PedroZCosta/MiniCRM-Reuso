@@ -1,6 +1,7 @@
 package com.miniCRM.miniCRM.service;
 
 import com.miniCRM.miniCRM.dto.cliente.ClienteResumo;
+import com.miniCRM.miniCRM.dto.cliente.CriarClienteRequest;
 import com.miniCRM.miniCRM.exception.RecursoNaoEncontradoException;
 import com.miniCRM.miniCRM.exception.RegraNegocioException;
 import com.miniCRM.miniCRM.model.Cliente;
@@ -90,6 +91,31 @@ class ClienteServiceTest {
 
         assertThatThrownBy(() -> clienteService.buscarPorId(10))
                 .isInstanceOf(RecursoNaoEncontradoException.class);
+    }
+
+    @Test
+    @DisplayName("aceita e-mail com dominio .com.br")
+    void aceitaEmailComDominioComBr() {
+        Usuario vendedor = new Usuario();
+        vendedor.setIdUsuario(2);
+        vendedor.setPerfil(PerfilUsuario.VENDEDOR);
+        vendedor.setAtivo(true);
+
+        when(usuarioRepository.findById(2)).thenReturn(Optional.of(vendedor));
+        when(clienteRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Cliente cliente = clienteService.criar(
+                new CriarClienteRequest("Construtora Horizonte", "contato@horizonte.com.br", null, null, null), 2);
+
+        assertThat(cliente.getEmail()).isEqualTo("contato@horizonte.com.br");
+    }
+
+    @Test
+    @DisplayName("recusa e-mail sem dominio")
+    void recusaEmailSemDominio() {
+        assertThatThrownBy(() -> clienteService.criar(
+                new CriarClienteRequest("Fulano", "fulano@empresa", null, null, null), 2))
+                .isInstanceOf(RegraNegocioException.class);
     }
 
     @Test
