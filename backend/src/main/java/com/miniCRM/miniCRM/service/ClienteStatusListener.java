@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-/** Observer (lado consumidor) da SPEC-02 §5: status automático do cliente (RF30, RN-06). */
+/** Observer (lado consumidor): status automático do cliente (RF30, RN-06). */
 @Slf4j
 @Component
 @RequiredArgsConstructor

@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * Singleton nº 2 do trabalho (SPEC-02 §4): instância única gerenciada pelo Spring.
+ * Singleton nº 2 do trabalho: instância única gerenciada pelo Spring.
  */
 @Service
 @Transactional
@@ -113,7 +113,7 @@ public class ClienteService implements ClienteConsultaService {
         return clienteRepository.save(cliente);
     }
 
-    /** Usado pelo listener do RF30 (SPEC-02 §5). PROSPECT -> ATIVO, uma única vez. */
+    /** Usado pelo listener do RF30. PROSPECT -> ATIVO, uma única vez. */
     public void promoverParaAtivoSeProspect(Integer idCliente) {
         Cliente cliente = clienteRepository.findById(idCliente)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Cliente não encontrado"));

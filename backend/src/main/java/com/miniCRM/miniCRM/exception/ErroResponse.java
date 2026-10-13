@@ -3,7 +3,7 @@ package com.miniCRM.miniCRM.exception;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/** Formato único de erro da API (SPEC-00 §4). */
+/** Formato único de erro da API. */
 public record ErroResponse(
         LocalDateTime timestamp,
         int status,

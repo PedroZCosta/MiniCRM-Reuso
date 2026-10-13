@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Singleton nº 1 (SPEC-01 §6). O Spring cria UMA instancia de @Service e injeta a mesma
+ * Singleton nº 1. O Spring cria UMA instancia de @Service e injeta a mesma
  * em clientes, funil, tarefas e relatorios: o container controla a instancia unica.
  */
 @Service
