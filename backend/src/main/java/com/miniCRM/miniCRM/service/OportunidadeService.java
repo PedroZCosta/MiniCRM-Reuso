@@ -1,6 +1,8 @@
 package com.miniCRM.miniCRM.service;
 
+import com.miniCRM.miniCRM.dto.comum.HistoricoItem;
 import com.miniCRM.miniCRM.dto.comum.PageResponse;
+import com.miniCRM.miniCRM.dto.comum.TipoHistoricoItem;
 import com.miniCRM.miniCRM.dto.funil.ColunaFunilResponse;
 import com.miniCRM.miniCRM.dto.funil.CriarOportunidadeRequest;
 import com.miniCRM.miniCRM.dto.funil.EditarOportunidadeRequest;
@@ -42,13 +44,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class OportunidadeService {
+public class OportunidadeService implements OportunidadeConsultaService {
 
     private static final int TAMANHO_PAGINA = 20;
 
@@ -246,6 +249,20 @@ public class OportunidadeService {
     @Transactional(readOnly = true)
     public List<Oportunidade> listarDoCliente(Integer idCliente) {
         return oportunidadeRepository.findByClienteIdClienteOrderByCriadoEmDesc(idCliente);
+    }
+
+    // aparece na linha do tempo do cliente (SPEC-02), ex.: PROPOSTA · R$ 47.000,00
+    @Override
+    @Transactional(readOnly = true)
+    public List<HistoricoItem> historicoDoCliente(Integer idCliente) {
+        return listarDoCliente(idCliente).stream()
+                .map(o -> new HistoricoItem(
+                        TipoHistoricoItem.OPORTUNIDADE,
+                        o.getFechadaEm() != null ? o.getFechadaEm() : o.getCriadoEm(),
+                        o.getTitulo(),
+                        String.format(Locale.of("pt", "BR"), "%s · R$ %,.2f", o.getEtapa(), o.getValorEstimado()),
+                        o.getVendedor().getNome()))
+                .toList();
     }
 
     private void validarCampos(String titulo, BigDecimal valorEstimado) {
