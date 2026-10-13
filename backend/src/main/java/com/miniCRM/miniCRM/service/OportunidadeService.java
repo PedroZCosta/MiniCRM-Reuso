@@ -67,6 +67,10 @@ public class OportunidadeService {
         validarCampos(request.titulo(), request.valorEstimado());
 
         Cliente cliente = clienteService.buscarClienteAtivo(request.idCliente());
+        Optional<List<Integer>> escopo = escopoCarteira.vendedoresVisiveis();
+        if (escopo.isPresent() && !escopo.get().contains(cliente.getVendedor().getIdUsuario())) {
+            throw new RecursoNaoEncontradoException("Cliente não encontrado");
+        }
         Usuario vendedor = definirVendedor(request.idVendedor());
 
         Oportunidade oportunidade = new Oportunidade();
