@@ -185,6 +185,47 @@ h1, h2, h3, h4 {
     to { opacity: 1; transform: none }
   }
 
+  .badge-amber { background: var(--color-amber-soft); color: var(--color-amber); border-color: #efd2b8; }
+
+  /* filtro em formato de pilula */
+  .chip {
+    display: inline-flex; align-items: center; height: 30px; padding: 0 13px; border-radius: 99px;
+    border: 1.5px dashed var(--color-muted); font: 14.5px var(--font-hand);
+    color: var(--color-ink-soft); background: var(--color-surface); cursor: pointer;
+  }
+  .chip:hover { border-color: var(--color-ink); }
+  .chip.on { border-style: solid; border-color: var(--color-accent); background: var(--color-accent-soft); color: var(--color-accent-ink); }
+
+  /* paginacao do rodape da tabela */
+  .pager { display: flex; gap: 4px; }
+  .pager button {
+    width: 28px; height: 28px; border-radius: 5px; border: 2px solid var(--color-line);
+    background: var(--color-surface); font-size: 12px; font-weight: 600; color: var(--color-ink-soft);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .pager button.on { background: var(--color-line); color: #fff; }
+  .pager button:disabled { opacity: 0.35; pointer-events: none; }
+
+  /* abas da ficha do cliente */
+  .tabs { display: flex; gap: 2px; border-bottom: 2px solid var(--color-line); margin-bottom: 18px; }
+  .tab-btn {
+    padding: 8px 4px; margin-right: 24px; font: 18px var(--font-hand); color: var(--color-muted);
+    border-bottom: 3px solid transparent; position: relative; top: 2px; background: none; cursor: pointer;
+  }
+  .tab-btn .n { font-size: 12px; margin-left: 2px; font-family: var(--font-body); }
+  .tab-btn.active { color: var(--color-ink); border-color: var(--color-accent); }
+
+  /* linha do tempo */
+  .tl-item { display: flex; gap: 14px; padding: 15px 0; border-bottom: 1.5px dashed var(--color-line-soft); }
+  .tl-item:last-child { border-bottom: none; }
+  .tl-ico {
+    width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center;
+    justify-content: center; flex: none; border: 2px solid var(--color-line);
+    background: var(--color-accent-soft); color: var(--color-accent-ink);
+  }
+
+  .textarea { height: auto; min-height: 90px; padding: 9px 11px; resize: vertical; }
+
   /* bolinha com as iniciais */
   .avatar {
     width: 32px; height: 32px; border-radius: 99px; display: flex;

@@ -33,3 +33,37 @@ export type ErroResponse = {
   mensagem: string
   detalhes?: string[]
 }
+
+export type StatusCliente = 'PROSPECT' | 'ATIVO' | 'INATIVO'
+
+export type TipoInteracao = 'LIGACAO' | 'EMAIL' | 'REUNIAO'
+
+export type ClienteResponse = {
+  idCliente: number
+  nome: string
+  email: string
+  telefone: string | null
+  empresa: string | null
+  status: StatusCliente
+  // ativo=false quando o vendedor foi desativado: o cliente fica sem responsavel ativo.
+  vendedor: { idUsuario: number; nome: string; ativo: boolean }
+  criadoEm: string
+}
+
+export type InteracaoResponse = {
+  idInteracao: number
+  tipo: TipoInteracao
+  dataInteracao: string
+  observacoes: string | null
+  autor: string
+  criadoEm: string
+}
+
+// item do historico do cliente: junta interacoes, oportunidades e tarefas.
+export type HistoricoItem = {
+  tipo: 'INTERACAO' | 'OPORTUNIDADE' | 'TAREFA'
+  data: string
+  titulo: string
+  descricao: string | null
+  autor: string
+}
