@@ -279,8 +279,8 @@ public class OportunidadeService {
     }
 
     private Usuario usuarioLogado() {
-        String idDoToken = SecurityContextHolder.getContext().getAuthentication().getName();
-        return entityManager.getReference(Usuario.class, Integer.valueOf(idDoToken));
+        Usuario logado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return entityManager.getReference(Usuario.class, logado.getIdUsuario());
     }
 
     private void registrarHistorico(Oportunidade oportunidade, EtapaOportunidade anterior, EtapaOportunidade nova) {

@@ -17,7 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -44,16 +44,18 @@ public class ClienteController {
             @RequestParam(required = false) StatusCliente status,
             @RequestParam(required = false) Integer vendedorId,
             @RequestParam(defaultValue = "false") boolean incluirExcluidos,
-            @RequestParam(defaultValue = "0") int page) {
+            @RequestParam(defaultValue = "0") int page,
+            @AuthenticationPrincipal Usuario logado) {
         Page<Cliente> pagina = clienteService.listar(
-                busca, status, vendedorId, incluirExcluidos, page, usuarioLogadoId());
+                busca, status, vendedorId, incluirExcluidos, page, logado.getIdUsuario());
         return paraPageResponse(pagina);
     }
 
     @PostMapping
     @PreAuthorize("hasAuthority('CLIENTE_CRIAR')")
-    public ResponseEntity<ClienteResponse> criar(@RequestBody CriarClienteRequest request) {
-        Cliente cliente = clienteService.criar(request, usuarioLogadoId());
+    public ResponseEntity<ClienteResponse> criar(@RequestBody CriarClienteRequest request,
+                                                 @AuthenticationPrincipal Usuario logado) {
+        Cliente cliente = clienteService.criar(request, logado.getIdUsuario());
         return ResponseEntity.status(HttpStatus.CREATED).body(paraResponse(cliente));
     }
 
@@ -78,8 +80,9 @@ public class ClienteController {
 
     @PatchMapping("/{id}/transferir")
     @PreAuthorize("hasAuthority('CLIENTE_TRANSFERIR')")
-    public ClienteResponse transferir(@PathVariable Integer id, @RequestBody TransferirClienteRequest request) {
-        Cliente cliente = clienteService.transferir(id, request.novoVendedorId(), usuarioLogadoId());
+    public ClienteResponse transferir(@PathVariable Integer id, @RequestBody TransferirClienteRequest request,
+                                      @AuthenticationPrincipal Usuario logado) {
+        Cliente cliente = clienteService.transferir(id, request.novoVendedorId(), logado.getIdUsuario());
         return paraResponse(cliente);
     }
 
@@ -88,10 +91,6 @@ public class ClienteController {
     public PageResponse<HistoricoItem> historico(
             @PathVariable Integer id, @RequestParam(defaultValue = "0") int page) {
         return historicoService.listar(id, page);
-    }
-
-    private Integer usuarioLogadoId() {
-        return Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
     private PageResponse<ClienteResponse> paraPageResponse(Page<Cliente> pagina) {
