@@ -21,6 +21,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -64,14 +65,13 @@ public class ClienteService implements ClienteConsultaService {
         boolean podeVerExcluidos = incluirExcluidos
                 && (perfilLogado == PerfilUsuario.GERENTE || perfilLogado == PerfilUsuario.ADMIN);
 
-        Specification<Cliente> spec = podeVerExcluidos
-                ? Specification.where((Specification<Cliente>) null)
-                : ClienteSpecs.naoExcluido();
-        spec = spec
-                .and(busca != null && !busca.isBlank() ? ClienteSpecs.buscaLivre(busca) : null)
-                .and(status != null ? ClienteSpecs.comStatus(status) : null)
-                .and(vendedorId != null ? ClienteSpecs.doVendedor(vendedorId) : null)
-                .and(escopoCarteira.vendedoresVisiveis().map(ClienteSpecs::dentroDoEscopo).orElse(null));
+        List<Specification<Cliente>> filtros = new ArrayList<>();
+        if (!podeVerExcluidos) filtros.add(ClienteSpecs.naoExcluido());
+        if (busca != null && !busca.isBlank()) filtros.add(ClienteSpecs.buscaLivre(busca));
+        if (status != null) filtros.add(ClienteSpecs.comStatus(status));
+        if (vendedorId != null) filtros.add(ClienteSpecs.doVendedor(vendedorId));
+        escopoCarteira.vendedoresVisiveis().map(ClienteSpecs::dentroDoEscopo).ifPresent(filtros::add);
+        Specification<Cliente> spec = Specification.allOf(filtros);
 
         int paginaSegura = Math.max(page, 0);
         return clienteRepository.findAll(spec, PageRequest.of(paginaSegura, TAMANHO_PAGINA, Sort.by("nome")));
