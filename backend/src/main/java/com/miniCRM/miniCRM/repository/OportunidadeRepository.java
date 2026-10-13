@@ -19,19 +19,23 @@ public interface OportunidadeRepository extends JpaRepository<Oportunidade, Inte
             SELECT o FROM Oportunidade o
             WHERE (:etapa IS NULL OR o.etapa = :etapa)
               AND (:clienteId IS NULL OR o.cliente.idCliente = :clienteId)
+              AND (:vendedorId IS NULL OR o.vendedor.idUsuario = :vendedorId)
             """)
     Page<Oportunidade> buscar(@Param("etapa") EtapaOportunidade etapa,
                               @Param("clienteId") Integer clienteId,
+                              @Param("vendedorId") Integer vendedorId,
                               Pageable pageable);
 
     @Query("""
             SELECT o FROM Oportunidade o
             WHERE (:etapa IS NULL OR o.etapa = :etapa)
               AND (:clienteId IS NULL OR o.cliente.idCliente = :clienteId)
+              AND (:vendedorId IS NULL OR o.vendedor.idUsuario = :vendedorId)
               AND o.vendedor.idUsuario IN :vendedores
             """)
     Page<Oportunidade> buscarDosVendedores(@Param("etapa") EtapaOportunidade etapa,
                                            @Param("clienteId") Integer clienteId,
+                                           @Param("vendedorId") Integer vendedorId,
                                            @Param("vendedores") List<Integer> vendedores,
                                            Pageable pageable);
 

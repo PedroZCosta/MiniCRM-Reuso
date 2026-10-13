@@ -86,13 +86,14 @@ public class OportunidadeService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<OportunidadeResponse> listar(EtapaOportunidade etapa, Integer clienteId, int page) {
+    public PageResponse<OportunidadeResponse> listar(EtapaOportunidade etapa, Integer clienteId,
+                                                     Integer vendedorId, int page) {
         Pageable pageable = PageRequest.of(page, TAMANHO_PAGINA, Sort.by("criadoEm").descending());
         List<Integer> vendedores = escopoCarteira.vendedoresVisiveis().orElse(null);
 
         Page<Oportunidade> pagina = (vendedores == null)
-                ? oportunidadeRepository.buscar(etapa, clienteId, pageable)
-                : oportunidadeRepository.buscarDosVendedores(etapa, clienteId, vendedores, pageable);
+                ? oportunidadeRepository.buscar(etapa, clienteId, vendedorId, pageable)
+                : oportunidadeRepository.buscarDosVendedores(etapa, clienteId, vendedorId, vendedores, pageable);
 
         return PageResponse.de(pagina.map(this::paraResponse));
     }
