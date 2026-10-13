@@ -4,13 +4,14 @@ import com.miniCRM.miniCRM.dto.cliente.CriarInteracaoRequest;
 import com.miniCRM.miniCRM.dto.cliente.InteracaoResponse;
 import com.miniCRM.miniCRM.dto.comum.PageResponse;
 import com.miniCRM.miniCRM.model.Interacao;
+import com.miniCRM.miniCRM.model.Usuario;
 import com.miniCRM.miniCRM.service.InteracaoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,8 +30,9 @@ public class InteracaoController {
     @PostMapping
     @PreAuthorize("hasAuthority('INTERACAO_CRIAR')")
     public ResponseEntity<InteracaoResponse> criar(
-            @PathVariable Integer idCliente, @RequestBody CriarInteracaoRequest request) {
-        Interacao interacao = interacaoService.criar(idCliente, request, usuarioLogadoId());
+            @PathVariable Integer idCliente, @RequestBody CriarInteracaoRequest request,
+            @AuthenticationPrincipal Usuario logado) {
+        Interacao interacao = interacaoService.criar(idCliente, request, logado.getIdUsuario());
         return ResponseEntity.status(HttpStatus.CREATED).body(paraResponse(interacao));
     }
 
@@ -42,10 +44,6 @@ public class InteracaoController {
         return new PageResponse<>(
                 pagina.getContent().stream().map(this::paraResponse).toList(),
                 pagina.getNumber(), pagina.getSize(), pagina.getTotalPages(), pagina.getTotalElements());
-    }
-
-    private Integer usuarioLogadoId() {
-        return Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
     private InteracaoResponse paraResponse(Interacao interacao) {

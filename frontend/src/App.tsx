@@ -1,6 +1,8 @@
 import { Navigate, Route, Routes } from 'react-router'
 import AppLayout from './components/layout/AppLayout'
 import RotaProtegida from './components/RotaProtegida'
+import ClienteDetalhe from './pages/ClienteDetalhe'
+import Clientes from './pages/Clientes'
 import Login from './pages/Login'
 import RecuperarSenha from './pages/RecuperarSenha'
 import TrocarSenha from './pages/TrocarSenha'
@@ -33,6 +35,8 @@ export default function App() {
       >
         <Route path="/" element={<Navigate to="/usuarios" replace />} />
         <Route path="/usuarios" element={<Usuarios />} />
+        <Route path="/clientes" element={<Clientes />} />
+        <Route path="/clientes/:id" element={<ClienteDetalhe />} />
       </Route>
     </Routes>
   )

@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-/** Envelope padrão de toda listagem paginada (SPEC-00 §2.1, RF18). */
+/** Envelope padrão de toda listagem paginada (RF18). */
 public record PageResponse<T>(
         List<T> conteudo,
         int pagina,

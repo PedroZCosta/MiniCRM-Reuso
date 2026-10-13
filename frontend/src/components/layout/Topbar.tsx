@@ -11,7 +11,9 @@ const titulosPorRota: Record<string, { titulo: string; caminho: string }> = {
 export default function Topbar() {
   // o useLocation devolve a url aberta agora.
   const { pathname } = useLocation();
-  const atual = titulosPorRota[pathname] ?? { titulo: "miniCRM", caminho: "" };
+  // /clientes/7 usa o mesmo titulo de /clientes.
+  const rota = "/" + pathname.split("/")[1];
+  const atual = titulosPorRota[rota] ?? { titulo: "miniCRM", caminho: "" };
 
   return (
     <header className="sticky top-0 z-20 flex h-[60px] flex-none items-center justify-between border-b-2 border-line bg-surface px-6">

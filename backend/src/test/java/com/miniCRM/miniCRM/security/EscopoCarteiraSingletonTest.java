@@ -8,7 +8,7 @@ import org.springframework.context.ApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** Prova do Singleton nº 1 (SPEC-01 §6): o container entrega sempre a mesma instancia. */
+/** Prova do Singleton nº 1: o container entrega sempre a mesma instancia. */
 @SpringBootTest
 class EscopoCarteiraSingletonTest {
 

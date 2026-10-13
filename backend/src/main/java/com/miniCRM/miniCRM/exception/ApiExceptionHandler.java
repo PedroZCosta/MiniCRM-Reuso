@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/** Traduz exceções para o envelope de erro da SPEC-00 §4. Ninguém cria formato próprio. */
+/** Traduz exceções para o ErroResponse. Ninguém cria formato próprio. */
 @RestControllerAdvice
 public class ApiExceptionHandler {
 

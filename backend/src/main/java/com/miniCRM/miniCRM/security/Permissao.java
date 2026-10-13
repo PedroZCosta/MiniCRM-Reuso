@@ -1,6 +1,6 @@
 package com.miniCRM.miniCRM.security;
 
-// Ações do sistema (SPEC-01 §5). Os controllers pedem a ação, nunca o cargo.
+// Ações do sistema. Os controllers pedem a ação, nunca o cargo.
 public enum Permissao {
     CLIENTE_VER, CLIENTE_CRIAR, CLIENTE_EDITAR, CLIENTE_EXCLUIR, CLIENTE_TRANSFERIR,
     INTERACAO_VER, INTERACAO_CRIAR,

@@ -20,14 +20,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * Singleton nº 2 do trabalho (SPEC-02 §4): instância única gerenciada pelo Spring.
+ * Singleton nº 2 do trabalho: instância única gerenciada pelo Spring.
  */
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ClienteService implements ClienteConsultaService {
 
@@ -64,14 +67,13 @@ public class ClienteService implements ClienteConsultaService {
         boolean podeVerExcluidos = incluirExcluidos
                 && (perfilLogado == PerfilUsuario.GERENTE || perfilLogado == PerfilUsuario.ADMIN);
 
-        Specification<Cliente> spec = podeVerExcluidos
-                ? Specification.where((Specification<Cliente>) null)
-                : ClienteSpecs.naoExcluido();
-        spec = spec
-                .and(busca != null && !busca.isBlank() ? ClienteSpecs.buscaLivre(busca) : null)
-                .and(status != null ? ClienteSpecs.comStatus(status) : null)
-                .and(vendedorId != null ? ClienteSpecs.doVendedor(vendedorId) : null)
-                .and(escopoCarteira.vendedoresVisiveis().map(ClienteSpecs::dentroDoEscopo).orElse(null));
+        List<Specification<Cliente>> filtros = new ArrayList<>();
+        if (!podeVerExcluidos) filtros.add(ClienteSpecs.naoExcluido());
+        if (busca != null && !busca.isBlank()) filtros.add(ClienteSpecs.buscaLivre(busca));
+        if (status != null) filtros.add(ClienteSpecs.comStatus(status));
+        if (vendedorId != null) filtros.add(ClienteSpecs.doVendedor(vendedorId));
+        escopoCarteira.vendedoresVisiveis().map(ClienteSpecs::dentroDoEscopo).ifPresent(filtros::add);
+        Specification<Cliente> spec = Specification.allOf(filtros);
 
         int paginaSegura = Math.max(page, 0);
         return clienteRepository.findAll(spec, PageRequest.of(paginaSegura, TAMANHO_PAGINA, Sort.by("nome")));
@@ -111,7 +113,7 @@ public class ClienteService implements ClienteConsultaService {
         return clienteRepository.save(cliente);
     }
 
-    /** Usado pelo listener do RF30 (SPEC-02 §5). PROSPECT -> ATIVO, uma única vez. */
+    /** Usado pelo listener do RF30. PROSPECT -> ATIVO, uma única vez. */
     public void promoverParaAtivoSeProspect(Integer idCliente) {
         Cliente cliente = clienteRepository.findById(idCliente)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Cliente não encontrado"));
