@@ -226,6 +226,32 @@ h1, h2, h3, h4 {
 
   .textarea { height: auto; min-height: 90px; padding: 9px 11px; resize: vertical; }
 
+  .badge-red { background: var(--color-red-soft); color: var(--color-red); border-color: #eec3bc; }
+
+  /* funil em colunas */
+  .kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; align-items: start; }
+  .kcol {
+    background: var(--color-surface-alt); border: 2px solid var(--color-line); border-radius: 10px;
+    padding: 11px; min-height: 200px; transition: background 0.12s;
+  }
+  .kcol.sobre { background: var(--color-accent-soft); border-color: var(--color-accent); }
+  .kcol-head { display: flex; align-items: center; gap: 8px; padding: 3px 5px 10px; }
+  .kcol-head b { font: 17px var(--font-hand); font-weight: 400; }
+  .dotstage { width: 9px; height: 9px; border-radius: 2px; flex: none; border: 1.5px solid var(--color-line); }
+  .kcard {
+    background: var(--color-surface); border: 2px solid var(--color-line); border-radius: 7px;
+    padding: 10px 11px; box-shadow: var(--shadow-card-sm); cursor: pointer;
+  }
+  .kcard[draggable='true'] { cursor: grab; }
+  .kcard.ganha { border-color: var(--color-green); }
+  .kcard.perdida { border-color: var(--color-red); opacity: 0.75; }
+  .kdrop-hint {
+    border: 2px dashed var(--color-line-soft); border-radius: 7px; padding: 14px;
+    text-align: center; font: 15px var(--font-hand); color: var(--color-muted);
+  }
+  .resultado-ganha { background: var(--color-green-soft); border-color: var(--color-green); color: var(--color-green); }
+  .resultado-perdida { background: var(--color-red-soft); border-color: var(--color-red); color: var(--color-red); }
+
   /* bolinha com as iniciais */
   .avatar {
     width: 32px; height: 32px; border-radius: 99px; display: flex;

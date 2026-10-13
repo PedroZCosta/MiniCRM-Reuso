@@ -67,3 +67,47 @@ export type HistoricoItem = {
   descricao: string | null
   autor: string
 }
+
+export type EtapaOportunidade = 'PROSPECCAO' | 'CONTATO' | 'PROPOSTA' | 'GANHA' | 'PERDIDA'
+
+export type OportunidadeResponse = {
+  idOportunidade: number
+  titulo: string
+  cliente: string
+  valorEstimado: number
+  vendedor: string
+  dataPrevista: string | null
+  etapa: EtapaOportunidade
+  resultado: EtapaOportunidade | null
+  motivoPerda: string | null
+}
+
+export type HistoricoEtapaResponse = {
+  etapaAnterior: EtapaOportunidade
+  etapaNova: EtapaOportunidade
+  usuario: string
+  alteradoEm: string
+}
+
+export type OportunidadeDetalheResponse = {
+  oportunidade: OportunidadeResponse
+  historico: HistoricoEtapaResponse[]
+}
+
+// a ultima coluna vem como FECHADO e junta as ganhas e as perdidas.
+export type ColunaFunil = {
+  etapa: 'PROSPECCAO' | 'CONTATO' | 'PROPOSTA' | 'FECHADO'
+  quantidade: number
+  valorTotal: number
+  oportunidades: OportunidadeResponse[]
+}
+
+export type FunilResponse = {
+  colunas: ColunaFunil[]
+  valorEmNegociacao: number
+}
+
+export type MotivoPerdaResponse = {
+  idMotivo: number
+  descricao: string
+}
