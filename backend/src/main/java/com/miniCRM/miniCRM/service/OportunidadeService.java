@@ -1,6 +1,8 @@
 package com.miniCRM.miniCRM.service;
 
+import com.miniCRM.miniCRM.dto.comum.HistoricoItem;
 import com.miniCRM.miniCRM.dto.comum.PageResponse;
+import com.miniCRM.miniCRM.dto.comum.TipoHistoricoItem;
 import com.miniCRM.miniCRM.dto.funil.ColunaFunilResponse;
 import com.miniCRM.miniCRM.dto.funil.CriarOportunidadeRequest;
 import com.miniCRM.miniCRM.dto.funil.EditarOportunidadeRequest;
@@ -42,13 +44,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class OportunidadeService {
+public class OportunidadeService implements OportunidadeConsultaService {
 
     private static final int TAMANHO_PAGINA = 20;
 
@@ -67,6 +70,10 @@ public class OportunidadeService {
         validarCampos(request.titulo(), request.valorEstimado());
 
         Cliente cliente = clienteService.buscarClienteAtivo(request.idCliente());
+        Optional<List<Integer>> escopo = escopoCarteira.vendedoresVisiveis();
+        if (escopo.isPresent() && !escopo.get().contains(cliente.getVendedor().getIdUsuario())) {
+            throw new RecursoNaoEncontradoException("Cliente não encontrado");
+        }
         Usuario vendedor = definirVendedor(request.idVendedor());
 
         Oportunidade oportunidade = new Oportunidade();
@@ -82,13 +89,14 @@ public class OportunidadeService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<OportunidadeResponse> listar(EtapaOportunidade etapa, Integer clienteId, int page) {
+    public PageResponse<OportunidadeResponse> listar(EtapaOportunidade etapa, Integer clienteId,
+                                                     Integer vendedorId, int page) {
         Pageable pageable = PageRequest.of(page, TAMANHO_PAGINA, Sort.by("criadoEm").descending());
         List<Integer> vendedores = escopoCarteira.vendedoresVisiveis().orElse(null);
 
         Page<Oportunidade> pagina = (vendedores == null)
-                ? oportunidadeRepository.buscar(etapa, clienteId, pageable)
-                : oportunidadeRepository.buscarDosVendedores(etapa, clienteId, vendedores, pageable);
+                ? oportunidadeRepository.buscar(etapa, clienteId, vendedorId, pageable)
+                : oportunidadeRepository.buscarDosVendedores(etapa, clienteId, vendedorId, vendedores, pageable);
 
         return PageResponse.de(pagina.map(this::paraResponse));
     }
@@ -241,6 +249,20 @@ public class OportunidadeService {
     @Transactional(readOnly = true)
     public List<Oportunidade> listarDoCliente(Integer idCliente) {
         return oportunidadeRepository.findByClienteIdClienteOrderByCriadoEmDesc(idCliente);
+    }
+
+    // aparece na linha do tempo do cliente (SPEC-02), ex.: PROPOSTA · R$ 47.000,00
+    @Override
+    @Transactional(readOnly = true)
+    public List<HistoricoItem> historicoDoCliente(Integer idCliente) {
+        return listarDoCliente(idCliente).stream()
+                .map(o -> new HistoricoItem(
+                        TipoHistoricoItem.OPORTUNIDADE,
+                        o.getFechadaEm() != null ? o.getFechadaEm() : o.getCriadoEm(),
+                        o.getTitulo(),
+                        String.format(Locale.of("pt", "BR"), "%s · R$ %,.2f", o.getEtapa(), o.getValorEstimado()),
+                        o.getVendedor().getNome()))
+                .toList();
     }
 
     private void validarCampos(String titulo, BigDecimal valorEstimado) {

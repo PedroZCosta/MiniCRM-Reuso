@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class ClienteService implements ClienteConsultaService {
 
-    private static final Pattern EMAIL_VALIDO = Pattern.compile("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$");
+    private static final Pattern EMAIL_VALIDO = Pattern.compile("^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)*\\.[a-zA-Z]{2,}$");
     private static final int TAMANHO_PAGINA = 20;
 
     private final ClienteRepository clienteRepository;

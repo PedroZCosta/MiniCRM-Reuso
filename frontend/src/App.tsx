@@ -3,7 +3,9 @@ import AppLayout from './components/layout/AppLayout'
 import RotaProtegida from './components/RotaProtegida'
 import ClienteDetalhe from './pages/ClienteDetalhe'
 import Clientes from './pages/Clientes'
+import Funil from './pages/Funil'
 import Login from './pages/Login'
+import OportunidadeDetalhe from './pages/OportunidadeDetalhe'
 import RecuperarSenha from './pages/RecuperarSenha'
 import TrocarSenha from './pages/TrocarSenha'
 import Usuarios from './pages/Usuarios'
@@ -37,6 +39,8 @@ export default function App() {
         <Route path="/usuarios" element={<Usuarios />} />
         <Route path="/clientes" element={<Clientes />} />
         <Route path="/clientes/:id" element={<ClienteDetalhe />} />
+        <Route path="/funil" element={<Funil />} />
+        <Route path="/funil/:id" element={<OportunidadeDetalhe />} />
       </Route>
     </Routes>
   )

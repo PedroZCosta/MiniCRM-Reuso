@@ -44,8 +44,9 @@ public class OportunidadeController {
     public PageResponse<OportunidadeResponse> listar(
             @RequestParam(name = "etapa", required = false) EtapaOportunidade etapa,
             @RequestParam(name = "clienteId", required = false) Integer clienteId,
+            @RequestParam(name = "vendedorId", required = false) Integer vendedorId,
             @RequestParam(name = "page", defaultValue = "0") int page) {
-        return oportunidadeService.listar(etapa, clienteId, page);
+        return oportunidadeService.listar(etapa, clienteId, vendedorId, page);
     }
 
     @GetMapping("/oportunidades/{id}")
