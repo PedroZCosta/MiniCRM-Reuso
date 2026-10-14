@@ -1,9 +1,10 @@
 package com.miniCRM.miniCRM.model.enums;
 
+// Faixas de notificacao do diagrama de classes (SPEC-00 §3, SPEC-04 §0).
 public enum TipoNotificacao {
-    TAREFA_ATRIBUIDA,
-    TAREFA_VENCENDO,
-    TAREFA_ATRASADA,
-    OPORTUNIDADE_ATUALIZADA,
-    SISTEMA
+    D15,
+    D1,
+    HOJE,
+    VENCIDA,
+    REUNIAO
 }
