@@ -1,0 +1,11 @@
+$ docker exec minicrm-mysql-dbfirst mysql ... mini_crm_db -e "show tables"
+Tables_in_mini_crm_db
+cliente
+historico_etapa
+interacao
+motivo_perda
+notificacao
+oportunidade
+tarefa
+token_recuperacao
+usuario

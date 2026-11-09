@@ -1,0 +1,13 @@
+$ mvn spring-boot:run
+Started DbFirstApplication in 2.275 seconds (process running for 2.45)
+
+$ curl http://localhost:8095/api   (recursos publicados)
+   motivo_perda       http://localhost:8095/api/motivo_perda
+   notificacao        http://localhost:8095/api/notificacao
+   usuario            http://localhost:8095/api/usuario
+   token_recuperacao  http://localhost:8095/api/token_recuperacao
+   cliente            http://localhost:8095/api/cliente
+   interacao          http://localhost:8095/api/interacao
+   tarefa             http://localhost:8095/api/tarefa
+   historico_etapa    http://localhost:8095/api/historico_etapa
+   oportunidade       http://localhost:8095/api/oportunidade

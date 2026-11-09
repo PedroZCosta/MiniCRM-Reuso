@@ -1,0 +1,7 @@
+$ docker compose down -v && docker compose up -d --wait
+ Network dbfirst_default Removing 
+ Network dbfirst_default Removed 
+ Container minicrm-mysql-dbfirst Starting 
+ Container minicrm-mysql-dbfirst Started 
+ Container minicrm-mysql-dbfirst Waiting 
+ Container minicrm-mysql-dbfirst Healthy 

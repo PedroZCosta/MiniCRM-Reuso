@@ -1,0 +1,20 @@
+$ ./scripts/demo-crud.sh
+1) READ   - listando clientes que já estão no banco
+   - Padaria Pão Quente | contato@paoquente.com.br | PROSPECT
+   - Oficina Mecânica Rápida | oficina@rapida.com.br | PROSPECT
+   - Clínica Sorriso | clinica@sorriso.com.br | ATIVO
+   - Escola Aprender Mais | secretaria@aprendermais.com.br | PROSPECT
+   - Mercado Bom Preço | compras@bompreco.com.br | PROSPECT
+   - Studio Fit | recepcao@studiofit.com.br | PROSPECT
+
+2) CREATE - criando um cliente pela API gerada
+   criado em: http://localhost:8095/api/cliente/7
+
+3) UPDATE - mudando o status de PROSPECT para ATIVO
+   agora: Cliente Criado pela API Gerada | ATIVO
+
+4) DELETE - removendo o cliente
+   DELETE respondeu HTTP 200
+   GET depois de excluir: HTTP 404
+
+CRUD completo executado nas tabelas do MySQL.

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<featureModel>
+	<properties/>
+	<struct>
+		<and abstract="true" mandatory="true" name="MiniCRM">
+			<and abstract="true" mandatory="true" name="Autenticação">
+				<feature mandatory="true" name="LoginEmailSenha"/>
+				<feature name="BloqueioPorTentativas"/>
+				<feature name="RecuperaçãoDeSenha"/>
+				<feature name="TrocaDeSenhaNoPrimeiroAcesso"/>
+			</and>
+			<and abstract="true" mandatory="true" name="ControleDeAcesso">
+				<or abstract="true" mandatory="true" name="Perfis">
+					<feature name="Administrador"/>
+					<feature name="Gerente"/>
+					<feature name="Vendedor"/>
+				</or>
+				<alt abstract="true" mandatory="true" name="ModeloDePermissões">
+					<feature name="PermissõesNoCódigo"/>
+					<feature name="PermissõesComoDados"/>
+				</alt>
+				<feature mandatory="true" name="EscopoDeCarteira"/>
+				<feature name="GestãoDeUsuários"/>
+				<feature name="VínculoGerenteVendedor"/>
+			</and>
+			<and abstract="true" mandatory="true" name="Clientes">
+				<feature mandatory="true" name="CadastroDeClientes"/>
+				<feature mandatory="true" name="BuscaEFiltros"/>
+				<feature name="ExclusãoLógica"/>
+				<feature name="ExclusãoFísica"/>
+				<feature name="StatusAutomático"/>
+				<feature name="TransferênciaDeVendedor"/>
+				<and abstract="true" mandatory="true" name="Interações">
+					<or abstract="true" mandatory="true" name="TiposDeInteração">
+						<feature name="Ligação"/>
+						<feature name="EmailEnviado"/>
+						<feature name="Reunião"/>
+					</or>
+					<feature name="HistóricoDoCliente"/>
+				</and>
+			</and>
+			<and abstract="true" mandatory="true" name="Funil">
+				<feature mandatory="true" name="CadastroDeOportunidades"/>
+				<feature mandatory="true" name="KanbanDoFunil"/>
+				<or abstract="true" mandatory="true" name="Fechamento">
+					<feature name="Ganha"/>
+					<feature name="Perdida"/>
+				</or>
+				<feature name="MotivoDaPerda"/>
+				<feature name="ArrastarESoltar"/>
+				<feature name="HistóricoDeEtapas"/>
+				<feature name="ReaberturaDeOportunidade"/>
+				<feature name="TotaisPorEtapa"/>
+			</and>
+			<and abstract="true" mandatory="true" name="Tarefas">
+				<feature mandatory="true" name="CadastroDeTarefas"/>
+				<feature mandatory="true" name="ConclusãoDeTarefa"/>
+			</and>
+			<and abstract="true" name="Notificações">
+				<or abstract="true" mandatory="true" name="FaixasDeAviso">
+					<feature name="Aviso15Dias"/>
+					<feature name="AvisoVéspera"/>
+					<feature name="AvisoNoDia"/>
+					<feature name="AvisoVencida"/>
+				</or>
+				<feature name="AvisoDeReunião"/>
+				<feature name="CentralDeNotificações"/>
+				<feature name="PopUpDeVencimento"/>
+			</and>
+			<and abstract="true" name="Indicadores">
+				<feature mandatory="true" name="Dashboard"/>
+				<feature name="RankingDeVendedores"/>
+				<and abstract="true" name="Relatórios">
+					<or abstract="true" mandatory="true" name="FormatoDeExportação">
+						<feature name="ExportaçãoCSV"/>
+						<feature name="ExportaçãoPDF"/>
+					</or>
+					<feature name="FiltrosDeRelatório"/>
+				</and>
+			</and>
+			<and abstract="true" mandatory="true" name="Infraestrutura">
+				<alt abstract="true" mandatory="true" name="BancoDeDados">
+					<feature name="MySQL"/>
+					<feature name="PostgreSQL"/>
+					<feature name="H2"/>
+				</alt>
+				<feature mandatory="true" name="ApiRest"/>
+				<feature name="InterfaceWeb"/>
+				<alt abstract="true" name="ServiçoDeEmail">
+					<feature name="EmailEmLog"/>
+					<feature name="EmailSmtp"/>
+				</alt>
+				<feature mandatory="true" name="PaginaçãoDeListagens"/>
+				<feature mandatory="true" name="SeedDoAdministrador"/>
+				<feature name="BackupDoBanco"/>
+			</and>
+		</and>
+	</struct>
+	<constraints>
+		<rule>
+			<imp>
+				<var>RecuperaçãoDeSenha</var>
+				<var>ServiçoDeEmail</var>
+			</imp>
+		</rule>
+		<rule>
+			<imp>
+				<var>MotivoDaPerda</var>
+				<var>Perdida</var>
+			</imp>
+		</rule>
+		<rule>
+			<imp>
+				<var>TransferênciaDeVendedor</var>
+				<disj><var>Gerente</var><var>Administrador</var></disj>
+			</imp>
+		</rule>
+		<rule>
+			<imp>
+				<var>VínculoGerenteVendedor</var>
+				<conj><var>Gerente</var><var>Vendedor</var></conj>
+			</imp>
+		</rule>
+		<rule>
+			<imp>
+				<var>RankingDeVendedores</var>
+				<conj><var>Dashboard</var><disj><var>Gerente</var><var>Administrador</var></disj></conj>
+			</imp>
+		</rule>
+		<rule>
+			<imp>
+				<var>Relatórios</var>
+				<disj><var>Gerente</var><var>Administrador</var></disj>
+			</imp>
+		</rule>
+		<rule>
+			<imp>
+				<var>ArrastarESoltar</var>
+				<conj><var>InterfaceWeb</var><var>KanbanDoFunil</var></conj>
+			</imp>
+		</rule>
+		<rule>
+			<imp>
+				<var>PopUpDeVencimento</var>
+				<var>InterfaceWeb</var>
+			</imp>
+		</rule>
+		<rule>
+			<imp>
+				<var>GestãoDeUsuários</var>
+				<disj><var>Administrador</var><var>Gerente</var></disj>
+			</imp>
+		</rule>
+		<rule>
+			<imp>
+				<var>PermissõesComoDados</var>
+				<var>GestãoDeUsuários</var>
+			</imp>
+		</rule>
+		<rule>
+			<not>
+				<conj><var>ExclusãoLógica</var><var>ExclusãoFísica</var></conj>
+			</not>
+		</rule>
+		<rule>
+			<imp>
+				<var>BackupDoBanco</var>
+				<not><var>H2</var></not>
+			</imp>
+		</rule>
+		<rule>
+			<imp>
+				<var>StatusAutomático</var>
+				<var>Ganha</var>
+			</imp>
+		</rule>
+		<rule>
+			<imp>
+				<var>AvisoDeReunião</var>
+				<var>Reunião</var>
+			</imp>
+		</rule>
+	</constraints>
+	<calculations Auto="true" Constraints="true" Features="true" Redundant="true" Tautology="true"/>
+	<comments/>
+	<featureOrder userDefined="false"/>
+</featureModel>

@@ -1,0 +1,24 @@
+$ ./scripts/gerar.sh
+==> 1/2  Hibernate Tools: lendo o esquema do MySQL e gerando as entidades JPA
+  Building entity com.miniCRM.dbfirst.model.Cliente based on TableIdentifier(cliente)
+  Building entity com.miniCRM.dbfirst.model.HistoricoEtapa based on TableIdentifier(historico_etapa)
+  Building entity com.miniCRM.dbfirst.model.Interacao based on TableIdentifier(interacao)
+  Building entity com.miniCRM.dbfirst.model.MotivoPerda based on TableIdentifier(motivo_perda)
+  Building entity com.miniCRM.dbfirst.model.Notificacao based on TableIdentifier(notificacao)
+  Building entity com.miniCRM.dbfirst.model.Oportunidade based on TableIdentifier(oportunidade)
+  Building entity com.miniCRM.dbfirst.model.Tarefa based on TableIdentifier(tarefa)
+  Building entity com.miniCRM.dbfirst.model.TokenRecuperacao based on TableIdentifier(token_recuperacao)
+  Building entity com.miniCRM.dbfirst.model.Usuario based on TableIdentifier(usuario)
+BUILD SUCCESS
+==> 2/2  Gerando um repositório Spring Data REST por entidade
+  ClienteRepository  (tabela cliente, id Integer)  ->  /api/cliente
+  HistoricoEtapaRepository  (tabela historico_etapa, id Integer)  ->  /api/historico_etapa
+  InteracaoRepository  (tabela interacao, id Integer)  ->  /api/interacao
+  MotivoPerdaRepository  (tabela motivo_perda, id Byte)  ->  /api/motivo_perda
+  NotificacaoRepository  (tabela notificacao, id Integer)  ->  /api/notificacao
+  OportunidadeRepository  (tabela oportunidade, id Integer)  ->  /api/oportunidade
+  TarefaRepository  (tabela tarefa, id Integer)  ->  /api/tarefa
+  TokenRecuperacaoRepository  (tabela token_recuperacao, id Integer)  ->  /api/token_recuperacao
+  UsuarioRepository  (tabela usuario, id Integer)  ->  /api/usuario
+9 repositórios gerados em /home/nicolas_tancon/faculdade/MiniCRM-Reuso/dbfirst/src/main/java/com/miniCRM/dbfirst/repository
+Pronto. Rode a aplicação com:  mvn spring-boot:run   (http://localhost:8095)
