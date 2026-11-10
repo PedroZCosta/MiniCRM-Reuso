@@ -1,0 +1,89 @@
+@model IEnumerable<MiniCrm.DbFirst.Models.Oportunidade>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.AtualizadoEm)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CriadoEm)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DataPrevista)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Etapa)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FechadaEm)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Titulo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ValorEstimado)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IdClienteNavigation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IdMotivoPerdaNavigation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IdVendedorNavigation)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.AtualizadoEm)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CriadoEm)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DataPrevista)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Etapa)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FechadaEm)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Titulo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ValorEstimado)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IdClienteNavigation.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IdMotivoPerdaNavigation.Descricao)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IdVendedorNavigation.Email)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.IdOportunidade">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.IdOportunidade">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.IdOportunidade">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

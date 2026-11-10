@@ -1,0 +1,65 @@
+@model IEnumerable<MiniCrm.DbFirst.Models.Notificacao>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.GeradaEm)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Lida)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Mensagem)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tipo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IdTarefaNavigation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IdUsuarioNavigation)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.GeradaEm)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Lida)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Mensagem)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Tipo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IdTarefaNavigation.Titulo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IdUsuarioNavigation.Email)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.IdNotificacao">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.IdNotificacao">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.IdNotificacao">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

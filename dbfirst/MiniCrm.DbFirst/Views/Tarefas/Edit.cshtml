@@ -1,0 +1,74 @@
+@model MiniCrm.DbFirst.Models.Tarefa
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Tarefa</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="IdTarefa" />
+            <div class="form-group">
+                <label asp-for="Concluida" class="control-label"></label>
+                <input asp-for="Concluida" class="form-control" />
+                <span asp-validation-for="Concluida" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ConcluidaEm" class="control-label"></label>
+                <input asp-for="ConcluidaEm" class="form-control" />
+                <span asp-validation-for="ConcluidaEm" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CriadoEm" class="control-label"></label>
+                <input asp-for="CriadoEm" class="form-control" />
+                <span asp-validation-for="CriadoEm" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DataVencimento" class="control-label"></label>
+                <input asp-for="DataVencimento" class="form-control" />
+                <span asp-validation-for="DataVencimento" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Descricao" class="control-label"></label>
+                <input asp-for="Descricao" class="form-control" />
+                <span asp-validation-for="Descricao" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Titulo" class="control-label"></label>
+                <input asp-for="Titulo" class="form-control" />
+                <span asp-validation-for="Titulo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdCliente" class="control-label"></label>
+                <select asp-for="IdCliente" class="form-control" asp-items="ViewBag.IdCliente"></select>
+                <span asp-validation-for="IdCliente" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdOportunidade" class="control-label"></label>
+                <select asp-for="IdOportunidade" class="form-control" asp-items="ViewBag.IdOportunidade"></select>
+                <span asp-validation-for="IdOportunidade" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdUsuario" class="control-label"></label>
+                <select asp-for="IdUsuario" class="form-control" asp-items="ViewBag.IdUsuario"></select>
+                <span asp-validation-for="IdUsuario" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,72 @@
+@model MiniCrm.DbFirst.Models.Tarefa
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Tarefa</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Concluida)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Concluida)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ConcluidaEm)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ConcluidaEm)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.CriadoEm)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.CriadoEm)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.DataVencimento)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.DataVencimento)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Descricao)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Descricao)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Titulo)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Titulo)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.IdClienteNavigation)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.IdClienteNavigation.Email)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.IdOportunidadeNavigation)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.IdOportunidadeNavigation.Etapa)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.IdUsuarioNavigation)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.IdUsuarioNavigation.Email)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.IdTarefa">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

@@ -1,0 +1,22 @@
+# Banco de dados da demonstração Database First (MySQL 8.4).
+# O schema e os dados de exemplo vêm do mini_crm_db real, criado pelo backend do Mini CRM.
+# Sobe na porta 3307 para não conflitar com um MySQL local na 3306.
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: minicrm-mysql-dbfirst
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpw
+      MYSQL_DATABASE: mini_crm_db
+      MYSQL_USER: miniCrmUser
+      MYSQL_PASSWORD: "crm123P@"
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - ./banco/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./banco/dados-demo.sql:/docker-entrypoint-initdb.d/02-dados-demo.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-prootpw", "--silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20

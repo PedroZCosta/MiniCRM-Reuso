@@ -1,0 +1,48 @@
+@model MiniCrm.DbFirst.Models.HistoricoEtapa
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>HistoricoEtapa</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.AlteradoEm)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.AlteradoEm)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.EtapaAnterior)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.EtapaAnterior)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.EtapaNova)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.EtapaNova)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.IdOportunidadeNavigation)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.IdOportunidadeNavigation.Etapa)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.IdUsuarioNavigation)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.IdUsuarioNavigation.Email)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.IdHistorico">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

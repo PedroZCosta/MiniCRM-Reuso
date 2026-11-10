@@ -1,0 +1,89 @@
+@model MiniCrm.DbFirst.Models.Usuario
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Usuario</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="IdUsuario" />
+            <div class="form-group">
+                <label asp-for="Ativo" class="control-label"></label>
+                <input asp-for="Ativo" class="form-control" />
+                <span asp-validation-for="Ativo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AtualizadoEm" class="control-label"></label>
+                <input asp-for="AtualizadoEm" class="form-control" />
+                <span asp-validation-for="AtualizadoEm" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BloqueadoAte" class="control-label"></label>
+                <input asp-for="BloqueadoAte" class="form-control" />
+                <span asp-validation-for="BloqueadoAte" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CriadoEm" class="control-label"></label>
+                <input asp-for="CriadoEm" class="form-control" />
+                <span asp-validation-for="CriadoEm" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Nome" class="control-label"></label>
+                <input asp-for="Nome" class="form-control" />
+                <span asp-validation-for="Nome" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Perfil" class="control-label"></label>
+                <input asp-for="Perfil" class="form-control" />
+                <span asp-validation-for="Perfil" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SenhaHash" class="control-label"></label>
+                <input asp-for="SenhaHash" class="form-control" />
+                <span asp-validation-for="SenhaHash" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TentativasLogin" class="control-label"></label>
+                <input asp-for="TentativasLogin" class="form-control" />
+                <span asp-validation-for="TentativasLogin" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TrocarSenha" class="control-label"></label>
+                <input asp-for="TrocarSenha" class="form-control" />
+                <span asp-validation-for="TrocarSenha" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UltimoAcesso" class="control-label"></label>
+                <input asp-for="UltimoAcesso" class="form-control" />
+                <span asp-validation-for="UltimoAcesso" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdGerente" class="control-label"></label>
+                <select asp-for="IdGerente" class="form-control" asp-items="ViewBag.IdGerente"></select>
+                <span asp-validation-for="IdGerente" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

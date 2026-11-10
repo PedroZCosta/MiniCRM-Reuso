@@ -1,0 +1,48 @@
+@model MiniCrm.DbFirst.Models.TokenRecuperacao
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>TokenRecuperacao</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.CodigoHash)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.CodigoHash)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.CriadoEm)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.CriadoEm)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ExpiraEm)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ExpiraEm)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Usado)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Usado)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.IdUsuarioNavigation)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.IdUsuarioNavigation.Email)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.IdToken">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
