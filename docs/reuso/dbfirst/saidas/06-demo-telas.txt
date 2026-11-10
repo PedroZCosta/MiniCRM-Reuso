@@ -1,0 +1,16 @@
+$ ./scripts/demo-telas.sh
+Clientes no banco antes: 6
+
+1) CREATE pela tela  (GET /Clientes/Create -> POST do formulário)
+   POST /Clientes/Create: 302 -> http://localhost:8095/
+   cliente criado com id 8; total agora: 7
+
+2) UPDATE pela tela  (GET /Clientes/Edit/8 -> POST do formulário)
+   POST /Clientes/Edit/8: 302 -> http://localhost:8095/
+   agora: Cliente Criado pela Tela Razor | ATIVO
+
+3) DELETE pela tela  (GET /Clientes/Delete/8 -> POST de confirmação)
+   POST /Clientes/Delete/8: 302 -> http://localhost:8095/
+   GET depois de excluir: HTTP 404; total agora: 6
+
+CRUD pelas telas executado nas tabelas do MySQL.

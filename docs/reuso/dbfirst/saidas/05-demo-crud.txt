@@ -8,13 +8,14 @@ $ ./scripts/demo-crud.sh
    - Studio Fit | recepcao@studiofit.com.br | PROSPECT
 
 2) CREATE - criando um cliente pela API gerada
-   criado em: http://localhost:8095/api/cliente/7
+   criado com id 7
 
-3) UPDATE - mudando o status de PROSPECT para ATIVO
-   agora: Cliente Criado pela API Gerada | ATIVO
+3) UPDATE - mudando o status de PROSPECT para ATIVO (PUT com o objeto)
+   PUT respondeu HTTP 204
+   agora: Cliente Criado pela API .NET | ATIVO
 
 4) DELETE - removendo o cliente
-   DELETE respondeu HTTP 200
+   DELETE respondeu HTTP 204
    GET depois de excluir: HTTP 404
 
 CRUD completo executado nas tabelas do MySQL.

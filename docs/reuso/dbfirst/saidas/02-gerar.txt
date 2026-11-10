@@ -1,0 +1,15 @@
+$ ./scripts/gerar.sh
+==> EF Core Scaffolding: lendo o esquema de mini_crm_db em localhost:3307 e gerando as classes
+Using ServerVersion '8.4.13-mysql'.
+
+Entidades geradas em MiniCrm.DbFirst/Models:
+  Cliente.cs
+  HistoricoEtapa.cs
+  Interacao.cs
+  MotivoPerda.cs
+  Notificacao.cs
+  Oportunidade.cs
+  Tarefa.cs
+  TokenRecuperacao.cs
+  Usuario.cs
+DbContext gerado em MiniCrm.DbFirst/Data/MiniCrmContext.cs

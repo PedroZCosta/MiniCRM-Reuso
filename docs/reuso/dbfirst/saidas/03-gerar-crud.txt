@@ -1,0 +1,12 @@
+$ ./scripts/gerar-crud.sh
+==> Gerando CRUD (controller MVC + views + controller de API) para 9 entidades
+  Cliente           -> tela /Clientes (5 views)  API /api/Clientes
+  HistoricoEtapa    -> tela /HistoricoEtapas (5 views)  API /api/HistoricoEtapas
+  Interacao         -> tela /Interacoes (5 views)  API /api/Interacoes
+  MotivoPerda       -> tela /MotivoPerdas (5 views)  API /api/MotivoPerdas
+  Notificacao       -> tela /Notificacoes (5 views)  API /api/Notificacoes
+  Oportunidade      -> tela /Oportunidades (5 views)  API /api/Oportunidades
+  Tarefa            -> tela /Tarefas (5 views)   API /api/Tarefas
+  TokenRecuperacao  -> tela /TokenRecuperacoes (5 views)  API /api/TokenRecuperacoes
+  Usuario           -> tela /Usuarios (5 views)  API /api/Usuarios
+Pronto. Compile e rode com:  ./scripts/rodar.sh

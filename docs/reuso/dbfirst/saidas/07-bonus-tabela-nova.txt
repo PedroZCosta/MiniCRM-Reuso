@@ -1,0 +1,15 @@
+$ mysql> CREATE TABLE produto (...)   -- tabela nova, criada direto no banco
+linhas em produto
+2
+
+$ ./scripts/gerar.sh && ./scripts/gerar-crud.sh
+Entidades geradas em MiniCrm.DbFirst/Models:
+  Produto.cs
+  Produto            -> Controllers/ProdutosController.cs, Views/Produtos/ (5 telas), Controllers/Api/ProdutosController.cs  (/api/Produtos)
+
+$ mysql> DROP TABLE produto;   -- volta ao banco original
+(tabela removida)
+
+$ ./scripts/gerar.sh && ./scripts/gerar-crud.sh
+(regerado)
+arquivos de Produto restantes: 0
