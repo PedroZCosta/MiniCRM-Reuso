@@ -1,4 +1,4 @@
-$ ./scripts/rodar.sh
+$ dotnet run --project MiniCrm.DbFirst
 Now listening on: http://localhost:8095
 Application started. Press Ctrl+C to shut down.
 

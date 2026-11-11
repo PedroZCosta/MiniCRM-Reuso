@@ -9,4 +9,4 @@ $ ./scripts/gerar-crud.sh
   Tarefa            -> tela /Tarefas (5 views)   API /api/Tarefas
   TokenRecuperacao  -> tela /TokenRecuperacoes (5 views)  API /api/TokenRecuperacoes
   Usuario           -> tela /Usuarios (5 views)  API /api/Usuarios
-Pronto. Compile e rode com:  ./scripts/rodar.sh
+Pronto. Rode com:  dotnet run --project MiniCrm.DbFirst

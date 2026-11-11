@@ -10,7 +10,7 @@ MySQL (9 tabelas)
    │  dotnet aspnet-codegenerator controller   (scripts/gerar-crud.sh)
    ▼
 9 controllers MVC + 45 views Razor (as telas)  +  9 controllers de API (Swagger)
-   │  dotnet run                               (scripts/rodar.sh)
+   │  dotnet run --project MiniCrm.DbFirst
    ▼
 http://localhost:8095  (telas)      http://localhost:8095/swagger  (API)
 ```
@@ -46,23 +46,20 @@ cd dbfirst
 docker compose up -d --wait   # 1. banco com as 9 tabelas e dados de exemplo (MySQL 8.4, porta 3307)
 ./scripts/gerar.sh            # 2. entidades e DbContext gerados a partir do banco
 ./scripts/gerar-crud.sh       # 3. controllers, telas e API gerados a partir das entidades
-./scripts/rodar.sh            # 4. aplicação em http://localhost:8095
+dotnet run --project MiniCrm.DbFirst   # 4. aplicação em http://localhost:8095
 ```
 
-Com a aplicação no ar, em outro terminal:
+Se o terminal responder `dotnet: command not found`, o SDK instalado em `~/.dotnet` não está no `PATH` desta sessão. Rode isto uma vez antes do passo 4 (os scripts `gerar.sh` e `gerar-crud.sh` já fazem isso sozinhos):
 
 ```bash
-./scripts/demo-crud.sh        # CRUD completo pela API (ler, criar, editar, excluir)
-./scripts/demo-telas.sh       # o mesmo CRUD pelos formulários das telas Razor
+export DOTNET_ROOT=$HOME/.dotnet PATH=$HOME/.dotnet:$PATH
 ```
 
-No navegador:
+Com a aplicação no ar, teste o CRUD no navegador:
 
 - **http://localhost:8095** abre a lista de clientes (telas geradas). Use `Create New`, `Edit`, `Details` e `Delete`.
-- **http://localhost:8095/swagger** lista os 9 recursos da API com GET, POST, PUT e DELETE.
+- **http://localhost:8095/swagger** lista os 9 recursos da API com GET, POST, PUT e DELETE. Expanda um endpoint e use `Try it out`.
 - As demais telas: `/Oportunidades`, `/Tarefas`, `/Interacoes`, `/Usuarios`, `/HistoricoEtapas`, `/MotivoPerdas`, `/Notificacoes` e `/TokenRecuperacoes`.
-
-Para rodar tudo de uma vez, do zero, com banco novo: `./scripts/ensaio.sh [pasta-para-salvar-as-saidas]`.
 
 ### O que mostrar: o banco manda
 
@@ -73,7 +70,7 @@ docker exec minicrm-mysql-dbfirst mysql -uroot -prootpw mini_crm_db -e \
   "CREATE TABLE produto (id_produto INT AUTO_INCREMENT PRIMARY KEY, nome VARCHAR(100) NOT NULL, preco DECIMAL(10,2) NOT NULL);
    INSERT INTO produto (nome, preco) VALUES ('Plano Premium', 199.90);"
 ./scripts/gerar.sh && ./scripts/gerar-crud.sh   # surgem Models/Produto.cs, ProdutosController e Views/Produtos
-./scripts/rodar.sh                               # http://localhost:8095/Produtos
+dotnet run --project MiniCrm.DbFirst            # http://localhost:8095/Produtos
 ```
 
 Para voltar ao estado original: `DROP TABLE produto;` e rode `gerar.sh` e `gerar-crud.sh` de novo.

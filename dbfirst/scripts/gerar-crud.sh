@@ -43,4 +43,4 @@ for par in "${PARES[@]}"; do
   printf '  %-17s -> tela /%-18s  API /api/%s\n' "$entidade" "$colecao (5 views)" "$colecao"
 done
 
-echo "Pronto. Compile e rode com:  ./scripts/rodar.sh"
+echo "Pronto. Rode com:  dotnet run --project MiniCrm.DbFirst"
