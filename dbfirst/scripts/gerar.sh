@@ -40,14 +40,8 @@ dotnet ef dbcontext scaffold "$CONEXAO" Pomelo.EntityFrameworkCore.MySql \
 
 # Peculiaridade do Pomelo + EF: com --data-annotations, colunas datetime(6) saem com [MaxLength(6)] e o
 # ASP.NET quebra na validação (InvalidCastException -> HTTP 500). Remove só esse atributo nos campos de data.
-python3 -I - "$PROJETO/Models" <<'PY'
-import pathlib, re, sys
-for f in pathlib.Path(sys.argv[1]).glob("*.cs"):
-    t = f.read_text(encoding="utf-8")
-    n = re.sub(r"[ \t]*\[MaxLength\(\d+\)\]\r?\n(?=(?:[ \t]*\[[^\n]*\]\r?\n)*[ \t]*public (?:DateTime|DateOnly|TimeOnly)\??\s)", "", t)
-    if n != t:
-        f.write_text(n, encoding="utf-8")
-PY
+# O perl edita os arquivos no lugar e preserva os fins de linha (CRLF) que a ferramenta gerou.
+perl -0pi -e 's/[ \t]*\[MaxLength\(\d+\)\]\r?\n(?=(?:[ \t]*\[[^\n]*\]\r?\n)*[ \t]*public (?:DateTime|DateOnly|TimeOnly)\??\s)//g' "$PROJETO"/Models/*.cs
 
 echo
 echo "Entidades geradas em $PROJETO/Models:"
