@@ -49,15 +49,15 @@ public partial class Cliente
     public int IdVendedor { get; set; }
 
     [ForeignKey("IdVendedor")]
-    [InverseProperty("Clientes")]
+    [InverseProperty("Cliente")]
     public virtual Usuario IdVendedorNavigation { get; set; }
 
     [InverseProperty("IdClienteNavigation")]
-    public virtual ICollection<Interacao> Interacoes { get; set; } = new List<Interacao>();
+    public virtual ICollection<Interacao> Interacao { get; set; } = new List<Interacao>();
 
     [InverseProperty("IdClienteNavigation")]
-    public virtual ICollection<Oportunidade> Oportunidades { get; set; } = new List<Oportunidade>();
+    public virtual ICollection<Oportunidade> Oportunidade { get; set; } = new List<Oportunidade>();
 
     [InverseProperty("IdClienteNavigation")]
-    public virtual ICollection<Tarefa> Tarefas { get; set; } = new List<Tarefa>();
+    public virtual ICollection<Tarefa> Tarefa { get; set; } = new List<Tarefa>();
 }

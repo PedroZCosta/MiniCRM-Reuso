@@ -10,23 +10,23 @@ using MiniCrm.DbFirst.Models;
 
 namespace MiniCrm.DbFirst.Controllers
 {
-    public class InteracoesController : Controller
+    public class UsuarioController : Controller
     {
         private readonly MiniCrmContext _context;
 
-        public InteracoesController(MiniCrmContext context)
+        public UsuarioController(MiniCrmContext context)
         {
             _context = context;
         }
 
-        // GET: Interacoes
+        // GET: Usuario
         public async Task<IActionResult> Index()
         {
-            var miniCrmContext = _context.Interacoes.Include(i => i.IdClienteNavigation).Include(i => i.IdUsuarioNavigation);
+            var miniCrmContext = _context.Usuario.Include(u => u.IdGerenteNavigation);
             return View(await miniCrmContext.ToListAsync());
         }
 
-        // GET: Interacoes/Details/5
+        // GET: Usuario/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,45 +34,42 @@ namespace MiniCrm.DbFirst.Controllers
                 return NotFound();
             }
 
-            var interacao = await _context.Interacoes
-                .Include(i => i.IdClienteNavigation)
-                .Include(i => i.IdUsuarioNavigation)
-                .FirstOrDefaultAsync(m => m.IdInteracao == id);
-            if (interacao == null)
+            var usuario = await _context.Usuario
+                .Include(u => u.IdGerenteNavigation)
+                .FirstOrDefaultAsync(m => m.IdUsuario == id);
+            if (usuario == null)
             {
                 return NotFound();
             }
 
-            return View(interacao);
+            return View(usuario);
         }
 
-        // GET: Interacoes/Create
+        // GET: Usuario/Create
         public IActionResult Create()
         {
-            ViewData["IdCliente"] = new SelectList(_context.Clientes, "IdCliente", "Email");
-            ViewData["IdUsuario"] = new SelectList(_context.Usuarios, "IdUsuario", "Email");
+            ViewData["IdGerente"] = new SelectList(_context.Usuario, "IdUsuario", "Email");
             return View();
         }
 
-        // POST: Interacoes/Create
+        // POST: Usuario/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IdInteracao,CriadoEm,DataInteracao,Observacoes,Tipo,IdCliente,IdUsuario")] Interacao interacao)
+        public async Task<IActionResult> Create([Bind("IdUsuario,Ativo,AtualizadoEm,BloqueadoAte,CriadoEm,Email,Nome,Perfil,SenhaHash,TentativasLogin,TrocarSenha,UltimoAcesso,IdGerente")] Usuario usuario)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(interacao);
+                _context.Add(usuario);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdCliente"] = new SelectList(_context.Clientes, "IdCliente", "Email", interacao.IdCliente);
-            ViewData["IdUsuario"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", interacao.IdUsuario);
-            return View(interacao);
+            ViewData["IdGerente"] = new SelectList(_context.Usuario, "IdUsuario", "Email", usuario.IdGerente);
+            return View(usuario);
         }
 
-        // GET: Interacoes/Edit/5
+        // GET: Usuario/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -80,24 +77,23 @@ namespace MiniCrm.DbFirst.Controllers
                 return NotFound();
             }
 
-            var interacao = await _context.Interacoes.FindAsync(id);
-            if (interacao == null)
+            var usuario = await _context.Usuario.FindAsync(id);
+            if (usuario == null)
             {
                 return NotFound();
             }
-            ViewData["IdCliente"] = new SelectList(_context.Clientes, "IdCliente", "Email", interacao.IdCliente);
-            ViewData["IdUsuario"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", interacao.IdUsuario);
-            return View(interacao);
+            ViewData["IdGerente"] = new SelectList(_context.Usuario, "IdUsuario", "Email", usuario.IdGerente);
+            return View(usuario);
         }
 
-        // POST: Interacoes/Edit/5
+        // POST: Usuario/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IdInteracao,CriadoEm,DataInteracao,Observacoes,Tipo,IdCliente,IdUsuario")] Interacao interacao)
+        public async Task<IActionResult> Edit(int id, [Bind("IdUsuario,Ativo,AtualizadoEm,BloqueadoAte,CriadoEm,Email,Nome,Perfil,SenhaHash,TentativasLogin,TrocarSenha,UltimoAcesso,IdGerente")] Usuario usuario)
         {
-            if (id != interacao.IdInteracao)
+            if (id != usuario.IdUsuario)
             {
                 return NotFound();
             }
@@ -106,12 +102,12 @@ namespace MiniCrm.DbFirst.Controllers
             {
                 try
                 {
-                    _context.Update(interacao);
+                    _context.Update(usuario);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!InteracaoExists(interacao.IdInteracao))
+                    if (!UsuarioExists(usuario.IdUsuario))
                     {
                         return NotFound();
                     }
@@ -122,12 +118,11 @@ namespace MiniCrm.DbFirst.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdCliente"] = new SelectList(_context.Clientes, "IdCliente", "Email", interacao.IdCliente);
-            ViewData["IdUsuario"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", interacao.IdUsuario);
-            return View(interacao);
+            ViewData["IdGerente"] = new SelectList(_context.Usuario, "IdUsuario", "Email", usuario.IdGerente);
+            return View(usuario);
         }
 
-        // GET: Interacoes/Delete/5
+        // GET: Usuario/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -135,36 +130,35 @@ namespace MiniCrm.DbFirst.Controllers
                 return NotFound();
             }
 
-            var interacao = await _context.Interacoes
-                .Include(i => i.IdClienteNavigation)
-                .Include(i => i.IdUsuarioNavigation)
-                .FirstOrDefaultAsync(m => m.IdInteracao == id);
-            if (interacao == null)
+            var usuario = await _context.Usuario
+                .Include(u => u.IdGerenteNavigation)
+                .FirstOrDefaultAsync(m => m.IdUsuario == id);
+            if (usuario == null)
             {
                 return NotFound();
             }
 
-            return View(interacao);
+            return View(usuario);
         }
 
-        // POST: Interacoes/Delete/5
+        // POST: Usuario/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var interacao = await _context.Interacoes.FindAsync(id);
-            if (interacao != null)
+            var usuario = await _context.Usuario.FindAsync(id);
+            if (usuario != null)
             {
-                _context.Interacoes.Remove(interacao);
+                _context.Usuario.Remove(usuario);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool InteracaoExists(int id)
+        private bool UsuarioExists(int id)
         {
-            return _context.Interacoes.Any(e => e.IdInteracao == id);
+            return _context.Usuario.Any(e => e.IdUsuario == id);
         }
     }
 }

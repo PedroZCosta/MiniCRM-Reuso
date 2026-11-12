@@ -12,27 +12,27 @@ namespace MiniCrm.DbFirst.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TokenRecuperacoesController : ControllerBase
+    public class TokenRecuperacaoController : ControllerBase
     {
         private readonly MiniCrmContext _context;
 
-        public TokenRecuperacoesController(MiniCrmContext context)
+        public TokenRecuperacaoController(MiniCrmContext context)
         {
             _context = context;
         }
 
-        // GET: api/TokenRecuperacoes
+        // GET: api/TokenRecuperacao
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TokenRecuperacao>>> GetTokenRecuperacoes()
+        public async Task<ActionResult<IEnumerable<TokenRecuperacao>>> GetTokenRecuperacao()
         {
-            return await _context.TokenRecuperacoes.ToListAsync();
+            return await _context.TokenRecuperacao.ToListAsync();
         }
 
-        // GET: api/TokenRecuperacoes/5
+        // GET: api/TokenRecuperacao/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TokenRecuperacao>> GetTokenRecuperacao(int id)
         {
-            var tokenRecuperacao = await _context.TokenRecuperacoes.FindAsync(id);
+            var tokenRecuperacao = await _context.TokenRecuperacao.FindAsync(id);
 
             if (tokenRecuperacao == null)
             {
@@ -42,7 +42,7 @@ namespace MiniCrm.DbFirst.Controllers.Api
             return tokenRecuperacao;
         }
 
-        // PUT: api/TokenRecuperacoes/5
+        // PUT: api/TokenRecuperacao/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTokenRecuperacao(int id, TokenRecuperacao tokenRecuperacao)
@@ -73,28 +73,28 @@ namespace MiniCrm.DbFirst.Controllers.Api
             return NoContent();
         }
 
-        // POST: api/TokenRecuperacoes
+        // POST: api/TokenRecuperacao
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<TokenRecuperacao>> PostTokenRecuperacao(TokenRecuperacao tokenRecuperacao)
         {
-            _context.TokenRecuperacoes.Add(tokenRecuperacao);
+            _context.TokenRecuperacao.Add(tokenRecuperacao);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetTokenRecuperacao", new { id = tokenRecuperacao.IdToken }, tokenRecuperacao);
         }
 
-        // DELETE: api/TokenRecuperacoes/5
+        // DELETE: api/TokenRecuperacao/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTokenRecuperacao(int id)
         {
-            var tokenRecuperacao = await _context.TokenRecuperacoes.FindAsync(id);
+            var tokenRecuperacao = await _context.TokenRecuperacao.FindAsync(id);
             if (tokenRecuperacao == null)
             {
                 return NotFound();
             }
 
-            _context.TokenRecuperacoes.Remove(tokenRecuperacao);
+            _context.TokenRecuperacao.Remove(tokenRecuperacao);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -102,7 +102,7 @@ namespace MiniCrm.DbFirst.Controllers.Api
 
         private bool TokenRecuperacaoExists(int id)
         {
-            return _context.TokenRecuperacoes.Any(e => e.IdToken == id);
+            return _context.TokenRecuperacao.Any(e => e.IdToken == id);
         }
     }
 }

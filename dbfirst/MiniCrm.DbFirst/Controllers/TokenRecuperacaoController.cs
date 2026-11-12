@@ -10,23 +10,23 @@ using MiniCrm.DbFirst.Models;
 
 namespace MiniCrm.DbFirst.Controllers
 {
-    public class UsuariosController : Controller
+    public class TokenRecuperacaoController : Controller
     {
         private readonly MiniCrmContext _context;
 
-        public UsuariosController(MiniCrmContext context)
+        public TokenRecuperacaoController(MiniCrmContext context)
         {
             _context = context;
         }
 
-        // GET: Usuarios
+        // GET: TokenRecuperacao
         public async Task<IActionResult> Index()
         {
-            var miniCrmContext = _context.Usuarios.Include(u => u.IdGerenteNavigation);
+            var miniCrmContext = _context.TokenRecuperacao.Include(t => t.IdUsuarioNavigation);
             return View(await miniCrmContext.ToListAsync());
         }
 
-        // GET: Usuarios/Details/5
+        // GET: TokenRecuperacao/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,42 +34,42 @@ namespace MiniCrm.DbFirst.Controllers
                 return NotFound();
             }
 
-            var usuario = await _context.Usuarios
-                .Include(u => u.IdGerenteNavigation)
-                .FirstOrDefaultAsync(m => m.IdUsuario == id);
-            if (usuario == null)
+            var tokenRecuperacao = await _context.TokenRecuperacao
+                .Include(t => t.IdUsuarioNavigation)
+                .FirstOrDefaultAsync(m => m.IdToken == id);
+            if (tokenRecuperacao == null)
             {
                 return NotFound();
             }
 
-            return View(usuario);
+            return View(tokenRecuperacao);
         }
 
-        // GET: Usuarios/Create
+        // GET: TokenRecuperacao/Create
         public IActionResult Create()
         {
-            ViewData["IdGerente"] = new SelectList(_context.Usuarios, "IdUsuario", "Email");
+            ViewData["IdUsuario"] = new SelectList(_context.Usuario, "IdUsuario", "Email");
             return View();
         }
 
-        // POST: Usuarios/Create
+        // POST: TokenRecuperacao/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IdUsuario,Ativo,AtualizadoEm,BloqueadoAte,CriadoEm,Email,Nome,Perfil,SenhaHash,TentativasLogin,TrocarSenha,UltimoAcesso,IdGerente")] Usuario usuario)
+        public async Task<IActionResult> Create([Bind("IdToken,CodigoHash,CriadoEm,ExpiraEm,Usado,IdUsuario")] TokenRecuperacao tokenRecuperacao)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(usuario);
+                _context.Add(tokenRecuperacao);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdGerente"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", usuario.IdGerente);
-            return View(usuario);
+            ViewData["IdUsuario"] = new SelectList(_context.Usuario, "IdUsuario", "Email", tokenRecuperacao.IdUsuario);
+            return View(tokenRecuperacao);
         }
 
-        // GET: Usuarios/Edit/5
+        // GET: TokenRecuperacao/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -77,23 +77,23 @@ namespace MiniCrm.DbFirst.Controllers
                 return NotFound();
             }
 
-            var usuario = await _context.Usuarios.FindAsync(id);
-            if (usuario == null)
+            var tokenRecuperacao = await _context.TokenRecuperacao.FindAsync(id);
+            if (tokenRecuperacao == null)
             {
                 return NotFound();
             }
-            ViewData["IdGerente"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", usuario.IdGerente);
-            return View(usuario);
+            ViewData["IdUsuario"] = new SelectList(_context.Usuario, "IdUsuario", "Email", tokenRecuperacao.IdUsuario);
+            return View(tokenRecuperacao);
         }
 
-        // POST: Usuarios/Edit/5
+        // POST: TokenRecuperacao/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IdUsuario,Ativo,AtualizadoEm,BloqueadoAte,CriadoEm,Email,Nome,Perfil,SenhaHash,TentativasLogin,TrocarSenha,UltimoAcesso,IdGerente")] Usuario usuario)
+        public async Task<IActionResult> Edit(int id, [Bind("IdToken,CodigoHash,CriadoEm,ExpiraEm,Usado,IdUsuario")] TokenRecuperacao tokenRecuperacao)
         {
-            if (id != usuario.IdUsuario)
+            if (id != tokenRecuperacao.IdToken)
             {
                 return NotFound();
             }
@@ -102,12 +102,12 @@ namespace MiniCrm.DbFirst.Controllers
             {
                 try
                 {
-                    _context.Update(usuario);
+                    _context.Update(tokenRecuperacao);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UsuarioExists(usuario.IdUsuario))
+                    if (!TokenRecuperacaoExists(tokenRecuperacao.IdToken))
                     {
                         return NotFound();
                     }
@@ -118,11 +118,11 @@ namespace MiniCrm.DbFirst.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdGerente"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", usuario.IdGerente);
-            return View(usuario);
+            ViewData["IdUsuario"] = new SelectList(_context.Usuario, "IdUsuario", "Email", tokenRecuperacao.IdUsuario);
+            return View(tokenRecuperacao);
         }
 
-        // GET: Usuarios/Delete/5
+        // GET: TokenRecuperacao/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -130,35 +130,35 @@ namespace MiniCrm.DbFirst.Controllers
                 return NotFound();
             }
 
-            var usuario = await _context.Usuarios
-                .Include(u => u.IdGerenteNavigation)
-                .FirstOrDefaultAsync(m => m.IdUsuario == id);
-            if (usuario == null)
+            var tokenRecuperacao = await _context.TokenRecuperacao
+                .Include(t => t.IdUsuarioNavigation)
+                .FirstOrDefaultAsync(m => m.IdToken == id);
+            if (tokenRecuperacao == null)
             {
                 return NotFound();
             }
 
-            return View(usuario);
+            return View(tokenRecuperacao);
         }
 
-        // POST: Usuarios/Delete/5
+        // POST: TokenRecuperacao/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
-            if (usuario != null)
+            var tokenRecuperacao = await _context.TokenRecuperacao.FindAsync(id);
+            if (tokenRecuperacao != null)
             {
-                _context.Usuarios.Remove(usuario);
+                _context.TokenRecuperacao.Remove(tokenRecuperacao);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool UsuarioExists(int id)
+        private bool TokenRecuperacaoExists(int id)
         {
-            return _context.Usuarios.Any(e => e.IdUsuario == id);
+            return _context.TokenRecuperacao.Any(e => e.IdToken == id);
         }
     }
 }

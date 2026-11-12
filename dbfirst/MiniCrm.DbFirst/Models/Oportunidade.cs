@@ -51,20 +51,20 @@ public partial class Oportunidade
     public int IdVendedor { get; set; }
 
     [InverseProperty("IdOportunidadeNavigation")]
-    public virtual ICollection<HistoricoEtapa> HistoricoEtapas { get; set; } = new List<HistoricoEtapa>();
+    public virtual ICollection<HistoricoEtapa> HistoricoEtapa { get; set; } = new List<HistoricoEtapa>();
 
     [ForeignKey("IdCliente")]
-    [InverseProperty("Oportunidades")]
+    [InverseProperty("Oportunidade")]
     public virtual Cliente IdClienteNavigation { get; set; }
 
     [ForeignKey("IdMotivoPerda")]
-    [InverseProperty("Oportunidades")]
+    [InverseProperty("Oportunidade")]
     public virtual MotivoPerda IdMotivoPerdaNavigation { get; set; }
 
     [ForeignKey("IdVendedor")]
-    [InverseProperty("Oportunidades")]
+    [InverseProperty("Oportunidade")]
     public virtual Usuario IdVendedorNavigation { get; set; }
 
     [InverseProperty("IdOportunidadeNavigation")]
-    public virtual ICollection<Tarefa> Tarefas { get; set; } = new List<Tarefa>();
+    public virtual ICollection<Tarefa> Tarefa { get; set; } = new List<Tarefa>();
 }

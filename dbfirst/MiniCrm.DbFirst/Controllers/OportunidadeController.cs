@@ -10,23 +10,23 @@ using MiniCrm.DbFirst.Models;
 
 namespace MiniCrm.DbFirst.Controllers
 {
-    public class OportunidadesController : Controller
+    public class OportunidadeController : Controller
     {
         private readonly MiniCrmContext _context;
 
-        public OportunidadesController(MiniCrmContext context)
+        public OportunidadeController(MiniCrmContext context)
         {
             _context = context;
         }
 
-        // GET: Oportunidades
+        // GET: Oportunidade
         public async Task<IActionResult> Index()
         {
-            var miniCrmContext = _context.Oportunidades.Include(o => o.IdClienteNavigation).Include(o => o.IdMotivoPerdaNavigation).Include(o => o.IdVendedorNavigation);
+            var miniCrmContext = _context.Oportunidade.Include(o => o.IdClienteNavigation).Include(o => o.IdMotivoPerdaNavigation).Include(o => o.IdVendedorNavigation);
             return View(await miniCrmContext.ToListAsync());
         }
 
-        // GET: Oportunidades/Details/5
+        // GET: Oportunidade/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,7 +34,7 @@ namespace MiniCrm.DbFirst.Controllers
                 return NotFound();
             }
 
-            var oportunidade = await _context.Oportunidades
+            var oportunidade = await _context.Oportunidade
                 .Include(o => o.IdClienteNavigation)
                 .Include(o => o.IdMotivoPerdaNavigation)
                 .Include(o => o.IdVendedorNavigation)
@@ -47,16 +47,16 @@ namespace MiniCrm.DbFirst.Controllers
             return View(oportunidade);
         }
 
-        // GET: Oportunidades/Create
+        // GET: Oportunidade/Create
         public IActionResult Create()
         {
-            ViewData["IdCliente"] = new SelectList(_context.Clientes, "IdCliente", "Email");
-            ViewData["IdMotivoPerda"] = new SelectList(_context.MotivoPerdas, "IdMotivo", "Descricao");
-            ViewData["IdVendedor"] = new SelectList(_context.Usuarios, "IdUsuario", "Email");
+            ViewData["IdCliente"] = new SelectList(_context.Cliente, "IdCliente", "Email");
+            ViewData["IdMotivoPerda"] = new SelectList(_context.MotivoPerda, "IdMotivo", "Descricao");
+            ViewData["IdVendedor"] = new SelectList(_context.Usuario, "IdUsuario", "Email");
             return View();
         }
 
-        // POST: Oportunidades/Create
+        // POST: Oportunidade/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -69,13 +69,13 @@ namespace MiniCrm.DbFirst.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdCliente"] = new SelectList(_context.Clientes, "IdCliente", "Email", oportunidade.IdCliente);
-            ViewData["IdMotivoPerda"] = new SelectList(_context.MotivoPerdas, "IdMotivo", "Descricao", oportunidade.IdMotivoPerda);
-            ViewData["IdVendedor"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", oportunidade.IdVendedor);
+            ViewData["IdCliente"] = new SelectList(_context.Cliente, "IdCliente", "Email", oportunidade.IdCliente);
+            ViewData["IdMotivoPerda"] = new SelectList(_context.MotivoPerda, "IdMotivo", "Descricao", oportunidade.IdMotivoPerda);
+            ViewData["IdVendedor"] = new SelectList(_context.Usuario, "IdUsuario", "Email", oportunidade.IdVendedor);
             return View(oportunidade);
         }
 
-        // GET: Oportunidades/Edit/5
+        // GET: Oportunidade/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -83,18 +83,18 @@ namespace MiniCrm.DbFirst.Controllers
                 return NotFound();
             }
 
-            var oportunidade = await _context.Oportunidades.FindAsync(id);
+            var oportunidade = await _context.Oportunidade.FindAsync(id);
             if (oportunidade == null)
             {
                 return NotFound();
             }
-            ViewData["IdCliente"] = new SelectList(_context.Clientes, "IdCliente", "Email", oportunidade.IdCliente);
-            ViewData["IdMotivoPerda"] = new SelectList(_context.MotivoPerdas, "IdMotivo", "Descricao", oportunidade.IdMotivoPerda);
-            ViewData["IdVendedor"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", oportunidade.IdVendedor);
+            ViewData["IdCliente"] = new SelectList(_context.Cliente, "IdCliente", "Email", oportunidade.IdCliente);
+            ViewData["IdMotivoPerda"] = new SelectList(_context.MotivoPerda, "IdMotivo", "Descricao", oportunidade.IdMotivoPerda);
+            ViewData["IdVendedor"] = new SelectList(_context.Usuario, "IdUsuario", "Email", oportunidade.IdVendedor);
             return View(oportunidade);
         }
 
-        // POST: Oportunidades/Edit/5
+        // POST: Oportunidade/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -126,13 +126,13 @@ namespace MiniCrm.DbFirst.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdCliente"] = new SelectList(_context.Clientes, "IdCliente", "Email", oportunidade.IdCliente);
-            ViewData["IdMotivoPerda"] = new SelectList(_context.MotivoPerdas, "IdMotivo", "Descricao", oportunidade.IdMotivoPerda);
-            ViewData["IdVendedor"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", oportunidade.IdVendedor);
+            ViewData["IdCliente"] = new SelectList(_context.Cliente, "IdCliente", "Email", oportunidade.IdCliente);
+            ViewData["IdMotivoPerda"] = new SelectList(_context.MotivoPerda, "IdMotivo", "Descricao", oportunidade.IdMotivoPerda);
+            ViewData["IdVendedor"] = new SelectList(_context.Usuario, "IdUsuario", "Email", oportunidade.IdVendedor);
             return View(oportunidade);
         }
 
-        // GET: Oportunidades/Delete/5
+        // GET: Oportunidade/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -140,7 +140,7 @@ namespace MiniCrm.DbFirst.Controllers
                 return NotFound();
             }
 
-            var oportunidade = await _context.Oportunidades
+            var oportunidade = await _context.Oportunidade
                 .Include(o => o.IdClienteNavigation)
                 .Include(o => o.IdMotivoPerdaNavigation)
                 .Include(o => o.IdVendedorNavigation)
@@ -153,15 +153,15 @@ namespace MiniCrm.DbFirst.Controllers
             return View(oportunidade);
         }
 
-        // POST: Oportunidades/Delete/5
+        // POST: Oportunidade/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var oportunidade = await _context.Oportunidades.FindAsync(id);
+            var oportunidade = await _context.Oportunidade.FindAsync(id);
             if (oportunidade != null)
             {
-                _context.Oportunidades.Remove(oportunidade);
+                _context.Oportunidade.Remove(oportunidade);
             }
 
             await _context.SaveChangesAsync();
@@ -170,7 +170,7 @@ namespace MiniCrm.DbFirst.Controllers
 
         private bool OportunidadeExists(int id)
         {
-            return _context.Oportunidades.Any(e => e.IdOportunidade == id);
+            return _context.Oportunidade.Any(e => e.IdOportunidade == id);
         }
     }
 }

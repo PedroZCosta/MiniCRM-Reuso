@@ -12,47 +12,47 @@ namespace MiniCrm.DbFirst.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class InteracoesController : ControllerBase
+    public class ClienteController : ControllerBase
     {
         private readonly MiniCrmContext _context;
 
-        public InteracoesController(MiniCrmContext context)
+        public ClienteController(MiniCrmContext context)
         {
             _context = context;
         }
 
-        // GET: api/Interacoes
+        // GET: api/Cliente
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Interacao>>> GetInteracoes()
+        public async Task<ActionResult<IEnumerable<Cliente>>> GetCliente()
         {
-            return await _context.Interacoes.ToListAsync();
+            return await _context.Cliente.ToListAsync();
         }
 
-        // GET: api/Interacoes/5
+        // GET: api/Cliente/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Interacao>> GetInteracao(int id)
+        public async Task<ActionResult<Cliente>> GetCliente(int id)
         {
-            var interacao = await _context.Interacoes.FindAsync(id);
+            var cliente = await _context.Cliente.FindAsync(id);
 
-            if (interacao == null)
+            if (cliente == null)
             {
                 return NotFound();
             }
 
-            return interacao;
+            return cliente;
         }
 
-        // PUT: api/Interacoes/5
+        // PUT: api/Cliente/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutInteracao(int id, Interacao interacao)
+        public async Task<IActionResult> PutCliente(int id, Cliente cliente)
         {
-            if (id != interacao.IdInteracao)
+            if (id != cliente.IdCliente)
             {
                 return BadRequest();
             }
 
-            _context.Entry(interacao).State = EntityState.Modified;
+            _context.Entry(cliente).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace MiniCrm.DbFirst.Controllers.Api
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!InteracaoExists(id))
+                if (!ClienteExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +73,36 @@ namespace MiniCrm.DbFirst.Controllers.Api
             return NoContent();
         }
 
-        // POST: api/Interacoes
+        // POST: api/Cliente
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Interacao>> PostInteracao(Interacao interacao)
+        public async Task<ActionResult<Cliente>> PostCliente(Cliente cliente)
         {
-            _context.Interacoes.Add(interacao);
+            _context.Cliente.Add(cliente);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetInteracao", new { id = interacao.IdInteracao }, interacao);
+            return CreatedAtAction("GetCliente", new { id = cliente.IdCliente }, cliente);
         }
 
-        // DELETE: api/Interacoes/5
+        // DELETE: api/Cliente/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteInteracao(int id)
+        public async Task<IActionResult> DeleteCliente(int id)
         {
-            var interacao = await _context.Interacoes.FindAsync(id);
-            if (interacao == null)
+            var cliente = await _context.Cliente.FindAsync(id);
+            if (cliente == null)
             {
                 return NotFound();
             }
 
-            _context.Interacoes.Remove(interacao);
+            _context.Cliente.Remove(cliente);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool InteracaoExists(int id)
+        private bool ClienteExists(int id)
         {
-            return _context.Interacoes.Any(e => e.IdInteracao == id);
+            return _context.Cliente.Any(e => e.IdCliente == id);
         }
     }
 }

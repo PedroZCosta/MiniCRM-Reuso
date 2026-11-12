@@ -12,27 +12,27 @@ namespace MiniCrm.DbFirst.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MotivoPerdasController : ControllerBase
+    public class MotivoPerdaController : ControllerBase
     {
         private readonly MiniCrmContext _context;
 
-        public MotivoPerdasController(MiniCrmContext context)
+        public MotivoPerdaController(MiniCrmContext context)
         {
             _context = context;
         }
 
-        // GET: api/MotivoPerdas
+        // GET: api/MotivoPerda
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MotivoPerda>>> GetMotivoPerdas()
+        public async Task<ActionResult<IEnumerable<MotivoPerda>>> GetMotivoPerda()
         {
-            return await _context.MotivoPerdas.ToListAsync();
+            return await _context.MotivoPerda.ToListAsync();
         }
 
-        // GET: api/MotivoPerdas/5
+        // GET: api/MotivoPerda/5
         [HttpGet("{id}")]
         public async Task<ActionResult<MotivoPerda>> GetMotivoPerda(sbyte id)
         {
-            var motivoPerda = await _context.MotivoPerdas.FindAsync(id);
+            var motivoPerda = await _context.MotivoPerda.FindAsync(id);
 
             if (motivoPerda == null)
             {
@@ -42,7 +42,7 @@ namespace MiniCrm.DbFirst.Controllers.Api
             return motivoPerda;
         }
 
-        // PUT: api/MotivoPerdas/5
+        // PUT: api/MotivoPerda/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutMotivoPerda(sbyte id, MotivoPerda motivoPerda)
@@ -73,28 +73,28 @@ namespace MiniCrm.DbFirst.Controllers.Api
             return NoContent();
         }
 
-        // POST: api/MotivoPerdas
+        // POST: api/MotivoPerda
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<MotivoPerda>> PostMotivoPerda(MotivoPerda motivoPerda)
         {
-            _context.MotivoPerdas.Add(motivoPerda);
+            _context.MotivoPerda.Add(motivoPerda);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetMotivoPerda", new { id = motivoPerda.IdMotivo }, motivoPerda);
         }
 
-        // DELETE: api/MotivoPerdas/5
+        // DELETE: api/MotivoPerda/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMotivoPerda(sbyte id)
         {
-            var motivoPerda = await _context.MotivoPerdas.FindAsync(id);
+            var motivoPerda = await _context.MotivoPerda.FindAsync(id);
             if (motivoPerda == null)
             {
                 return NotFound();
             }
 
-            _context.MotivoPerdas.Remove(motivoPerda);
+            _context.MotivoPerda.Remove(motivoPerda);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -102,7 +102,7 @@ namespace MiniCrm.DbFirst.Controllers.Api
 
         private bool MotivoPerdaExists(sbyte id)
         {
-            return _context.MotivoPerdas.Any(e => e.IdMotivo == id);
+            return _context.MotivoPerda.Any(e => e.IdMotivo == id);
         }
     }
 }

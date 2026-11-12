@@ -46,17 +46,17 @@ public partial class Tarefa
     public int IdUsuario { get; set; }
 
     [ForeignKey("IdCliente")]
-    [InverseProperty("Tarefas")]
+    [InverseProperty("Tarefa")]
     public virtual Cliente IdClienteNavigation { get; set; }
 
     [ForeignKey("IdOportunidade")]
-    [InverseProperty("Tarefas")]
+    [InverseProperty("Tarefa")]
     public virtual Oportunidade IdOportunidadeNavigation { get; set; }
 
     [ForeignKey("IdUsuario")]
-    [InverseProperty("Tarefas")]
+    [InverseProperty("Tarefa")]
     public virtual Usuario IdUsuarioNavigation { get; set; }
 
     [InverseProperty("IdTarefaNavigation")]
-    public virtual ICollection<Notificacao> Notificacoes { get; set; } = new List<Notificacao>();
+    public virtual ICollection<Notificacao> Notificacao { get; set; } = new List<Notificacao>();
 }

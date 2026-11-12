@@ -10,23 +10,23 @@ using MiniCrm.DbFirst.Models;
 
 namespace MiniCrm.DbFirst.Controllers
 {
-    public class NotificacoesController : Controller
+    public class NotificacaoController : Controller
     {
         private readonly MiniCrmContext _context;
 
-        public NotificacoesController(MiniCrmContext context)
+        public NotificacaoController(MiniCrmContext context)
         {
             _context = context;
         }
 
-        // GET: Notificacoes
+        // GET: Notificacao
         public async Task<IActionResult> Index()
         {
-            var miniCrmContext = _context.Notificacoes.Include(n => n.IdTarefaNavigation).Include(n => n.IdUsuarioNavigation);
+            var miniCrmContext = _context.Notificacao.Include(n => n.IdTarefaNavigation).Include(n => n.IdUsuarioNavigation);
             return View(await miniCrmContext.ToListAsync());
         }
 
-        // GET: Notificacoes/Details/5
+        // GET: Notificacao/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,7 +34,7 @@ namespace MiniCrm.DbFirst.Controllers
                 return NotFound();
             }
 
-            var notificacao = await _context.Notificacoes
+            var notificacao = await _context.Notificacao
                 .Include(n => n.IdTarefaNavigation)
                 .Include(n => n.IdUsuarioNavigation)
                 .FirstOrDefaultAsync(m => m.IdNotificacao == id);
@@ -46,15 +46,15 @@ namespace MiniCrm.DbFirst.Controllers
             return View(notificacao);
         }
 
-        // GET: Notificacoes/Create
+        // GET: Notificacao/Create
         public IActionResult Create()
         {
-            ViewData["IdTarefa"] = new SelectList(_context.Tarefas, "IdTarefa", "Titulo");
-            ViewData["IdUsuario"] = new SelectList(_context.Usuarios, "IdUsuario", "Email");
+            ViewData["IdTarefa"] = new SelectList(_context.Tarefa, "IdTarefa", "Titulo");
+            ViewData["IdUsuario"] = new SelectList(_context.Usuario, "IdUsuario", "Email");
             return View();
         }
 
-        // POST: Notificacoes/Create
+        // POST: Notificacao/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -67,12 +67,12 @@ namespace MiniCrm.DbFirst.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdTarefa"] = new SelectList(_context.Tarefas, "IdTarefa", "Titulo", notificacao.IdTarefa);
-            ViewData["IdUsuario"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", notificacao.IdUsuario);
+            ViewData["IdTarefa"] = new SelectList(_context.Tarefa, "IdTarefa", "Titulo", notificacao.IdTarefa);
+            ViewData["IdUsuario"] = new SelectList(_context.Usuario, "IdUsuario", "Email", notificacao.IdUsuario);
             return View(notificacao);
         }
 
-        // GET: Notificacoes/Edit/5
+        // GET: Notificacao/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -80,17 +80,17 @@ namespace MiniCrm.DbFirst.Controllers
                 return NotFound();
             }
 
-            var notificacao = await _context.Notificacoes.FindAsync(id);
+            var notificacao = await _context.Notificacao.FindAsync(id);
             if (notificacao == null)
             {
                 return NotFound();
             }
-            ViewData["IdTarefa"] = new SelectList(_context.Tarefas, "IdTarefa", "Titulo", notificacao.IdTarefa);
-            ViewData["IdUsuario"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", notificacao.IdUsuario);
+            ViewData["IdTarefa"] = new SelectList(_context.Tarefa, "IdTarefa", "Titulo", notificacao.IdTarefa);
+            ViewData["IdUsuario"] = new SelectList(_context.Usuario, "IdUsuario", "Email", notificacao.IdUsuario);
             return View(notificacao);
         }
 
-        // POST: Notificacoes/Edit/5
+        // POST: Notificacao/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -122,12 +122,12 @@ namespace MiniCrm.DbFirst.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdTarefa"] = new SelectList(_context.Tarefas, "IdTarefa", "Titulo", notificacao.IdTarefa);
-            ViewData["IdUsuario"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", notificacao.IdUsuario);
+            ViewData["IdTarefa"] = new SelectList(_context.Tarefa, "IdTarefa", "Titulo", notificacao.IdTarefa);
+            ViewData["IdUsuario"] = new SelectList(_context.Usuario, "IdUsuario", "Email", notificacao.IdUsuario);
             return View(notificacao);
         }
 
-        // GET: Notificacoes/Delete/5
+        // GET: Notificacao/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -135,7 +135,7 @@ namespace MiniCrm.DbFirst.Controllers
                 return NotFound();
             }
 
-            var notificacao = await _context.Notificacoes
+            var notificacao = await _context.Notificacao
                 .Include(n => n.IdTarefaNavigation)
                 .Include(n => n.IdUsuarioNavigation)
                 .FirstOrDefaultAsync(m => m.IdNotificacao == id);
@@ -147,15 +147,15 @@ namespace MiniCrm.DbFirst.Controllers
             return View(notificacao);
         }
 
-        // POST: Notificacoes/Delete/5
+        // POST: Notificacao/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var notificacao = await _context.Notificacoes.FindAsync(id);
+            var notificacao = await _context.Notificacao.FindAsync(id);
             if (notificacao != null)
             {
-                _context.Notificacoes.Remove(notificacao);
+                _context.Notificacao.Remove(notificacao);
             }
 
             await _context.SaveChangesAsync();
@@ -164,7 +164,7 @@ namespace MiniCrm.DbFirst.Controllers
 
         private bool NotificacaoExists(int id)
         {
-            return _context.Notificacoes.Any(e => e.IdNotificacao == id);
+            return _context.Notificacao.Any(e => e.IdNotificacao == id);
         }
     }
 }

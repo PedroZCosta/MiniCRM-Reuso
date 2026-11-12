@@ -10,23 +10,23 @@ using MiniCrm.DbFirst.Models;
 
 namespace MiniCrm.DbFirst.Controllers
 {
-    public class HistoricoEtapasController : Controller
+    public class HistoricoEtapaController : Controller
     {
         private readonly MiniCrmContext _context;
 
-        public HistoricoEtapasController(MiniCrmContext context)
+        public HistoricoEtapaController(MiniCrmContext context)
         {
             _context = context;
         }
 
-        // GET: HistoricoEtapas
+        // GET: HistoricoEtapa
         public async Task<IActionResult> Index()
         {
-            var miniCrmContext = _context.HistoricoEtapas.Include(h => h.IdOportunidadeNavigation).Include(h => h.IdUsuarioNavigation);
+            var miniCrmContext = _context.HistoricoEtapa.Include(h => h.IdOportunidadeNavigation).Include(h => h.IdUsuarioNavigation);
             return View(await miniCrmContext.ToListAsync());
         }
 
-        // GET: HistoricoEtapas/Details/5
+        // GET: HistoricoEtapa/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,7 +34,7 @@ namespace MiniCrm.DbFirst.Controllers
                 return NotFound();
             }
 
-            var historicoEtapa = await _context.HistoricoEtapas
+            var historicoEtapa = await _context.HistoricoEtapa
                 .Include(h => h.IdOportunidadeNavigation)
                 .Include(h => h.IdUsuarioNavigation)
                 .FirstOrDefaultAsync(m => m.IdHistorico == id);
@@ -46,15 +46,15 @@ namespace MiniCrm.DbFirst.Controllers
             return View(historicoEtapa);
         }
 
-        // GET: HistoricoEtapas/Create
+        // GET: HistoricoEtapa/Create
         public IActionResult Create()
         {
-            ViewData["IdOportunidade"] = new SelectList(_context.Oportunidades, "IdOportunidade", "Etapa");
-            ViewData["IdUsuario"] = new SelectList(_context.Usuarios, "IdUsuario", "Email");
+            ViewData["IdOportunidade"] = new SelectList(_context.Oportunidade, "IdOportunidade", "Etapa");
+            ViewData["IdUsuario"] = new SelectList(_context.Usuario, "IdUsuario", "Email");
             return View();
         }
 
-        // POST: HistoricoEtapas/Create
+        // POST: HistoricoEtapa/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -67,12 +67,12 @@ namespace MiniCrm.DbFirst.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdOportunidade"] = new SelectList(_context.Oportunidades, "IdOportunidade", "Etapa", historicoEtapa.IdOportunidade);
-            ViewData["IdUsuario"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", historicoEtapa.IdUsuario);
+            ViewData["IdOportunidade"] = new SelectList(_context.Oportunidade, "IdOportunidade", "Etapa", historicoEtapa.IdOportunidade);
+            ViewData["IdUsuario"] = new SelectList(_context.Usuario, "IdUsuario", "Email", historicoEtapa.IdUsuario);
             return View(historicoEtapa);
         }
 
-        // GET: HistoricoEtapas/Edit/5
+        // GET: HistoricoEtapa/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -80,17 +80,17 @@ namespace MiniCrm.DbFirst.Controllers
                 return NotFound();
             }
 
-            var historicoEtapa = await _context.HistoricoEtapas.FindAsync(id);
+            var historicoEtapa = await _context.HistoricoEtapa.FindAsync(id);
             if (historicoEtapa == null)
             {
                 return NotFound();
             }
-            ViewData["IdOportunidade"] = new SelectList(_context.Oportunidades, "IdOportunidade", "Etapa", historicoEtapa.IdOportunidade);
-            ViewData["IdUsuario"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", historicoEtapa.IdUsuario);
+            ViewData["IdOportunidade"] = new SelectList(_context.Oportunidade, "IdOportunidade", "Etapa", historicoEtapa.IdOportunidade);
+            ViewData["IdUsuario"] = new SelectList(_context.Usuario, "IdUsuario", "Email", historicoEtapa.IdUsuario);
             return View(historicoEtapa);
         }
 
-        // POST: HistoricoEtapas/Edit/5
+        // POST: HistoricoEtapa/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -122,12 +122,12 @@ namespace MiniCrm.DbFirst.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdOportunidade"] = new SelectList(_context.Oportunidades, "IdOportunidade", "Etapa", historicoEtapa.IdOportunidade);
-            ViewData["IdUsuario"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", historicoEtapa.IdUsuario);
+            ViewData["IdOportunidade"] = new SelectList(_context.Oportunidade, "IdOportunidade", "Etapa", historicoEtapa.IdOportunidade);
+            ViewData["IdUsuario"] = new SelectList(_context.Usuario, "IdUsuario", "Email", historicoEtapa.IdUsuario);
             return View(historicoEtapa);
         }
 
-        // GET: HistoricoEtapas/Delete/5
+        // GET: HistoricoEtapa/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -135,7 +135,7 @@ namespace MiniCrm.DbFirst.Controllers
                 return NotFound();
             }
 
-            var historicoEtapa = await _context.HistoricoEtapas
+            var historicoEtapa = await _context.HistoricoEtapa
                 .Include(h => h.IdOportunidadeNavigation)
                 .Include(h => h.IdUsuarioNavigation)
                 .FirstOrDefaultAsync(m => m.IdHistorico == id);
@@ -147,15 +147,15 @@ namespace MiniCrm.DbFirst.Controllers
             return View(historicoEtapa);
         }
 
-        // POST: HistoricoEtapas/Delete/5
+        // POST: HistoricoEtapa/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var historicoEtapa = await _context.HistoricoEtapas.FindAsync(id);
+            var historicoEtapa = await _context.HistoricoEtapa.FindAsync(id);
             if (historicoEtapa != null)
             {
-                _context.HistoricoEtapas.Remove(historicoEtapa);
+                _context.HistoricoEtapa.Remove(historicoEtapa);
             }
 
             await _context.SaveChangesAsync();
@@ -164,7 +164,7 @@ namespace MiniCrm.DbFirst.Controllers
 
         private bool HistoricoEtapaExists(int id)
         {
-            return _context.HistoricoEtapas.Any(e => e.IdHistorico == id);
+            return _context.HistoricoEtapa.Any(e => e.IdHistorico == id);
         }
     }
 }

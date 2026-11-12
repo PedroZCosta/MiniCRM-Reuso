@@ -32,10 +32,10 @@ public partial class HistoricoEtapa
     public int IdUsuario { get; set; }
 
     [ForeignKey("IdOportunidade")]
-    [InverseProperty("HistoricoEtapas")]
+    [InverseProperty("HistoricoEtapa")]
     public virtual Oportunidade IdOportunidadeNavigation { get; set; }
 
     [ForeignKey("IdUsuario")]
-    [InverseProperty("HistoricoEtapas")]
+    [InverseProperty("HistoricoEtapa")]
     public virtual Usuario IdUsuarioNavigation { get; set; }
 }

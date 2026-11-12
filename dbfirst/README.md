@@ -10,7 +10,7 @@ MySQL (9 tabelas)
    │  dotnet-aspnet-codegenerator controller   (passo 9)
    ▼
 9 controllers MVC + 45 views Razor (as telas)  +  9 controllers de API (Swagger)
-   │  dotnet run --project MiniCrm.DbFirst     (passo 10)
+   │  dotnet run --project MiniCrm.DbFirst --urls ...  (passo 10)
    ▼
 http://localhost:8095  (telas)      http://localhost:8095/swagger  (API)
 ```
@@ -23,7 +23,7 @@ http://localhost:8095  (telas)      http://localhost:8095/swagger  (API)
 
 **Gerado pelas ferramentas (não editar à mão, rode a geração de novo):** `Models/` (as 9 entidades), `Data/`, `Controllers/` (menos o `HomeController`) e `Views/` (menos `Home` e `Shared`).
 **Criado por `dotnet new mvc` (passo 3):** o esqueleto do site: `HomeController`, `Views/Home`, `Views/Shared` (o layout), `Views/_ViewStart.cshtml`, `Views/_ViewImports.cshtml`, `Models/ErrorViewModel.cs` e `wwwroot/`.
-**Escrito à mão (passos 5 e 8):** `Program.cs`, `Design/DesignTimeServices.cs` (pluralizador em português), `appsettings.json` e `Properties/launchSettings.json`; mais o `.csproj`, ajustado nos passos 4 e 5. Todos estão no passo a passo, então o projeto inteiro **pode ser apagado e recriado só com os comandos do README**. A pasta `scripts/` é a opção secundária.
+**Escrito à mão (passos 5 e 8):** `Program.cs` e `appsettings.json`; mais o `.csproj`, ajustado nos passos 4 e 5. Todos estão no passo a passo, então o projeto inteiro **pode ser apagado e recriado só com os comandos do README**. A pasta `scripts/` é a opção secundária.
 
 ## Dois jeitos de rodar
 
@@ -58,12 +58,12 @@ Todos os comandos rodam **dentro da pasta `dbfirst/`**, na ordem, no mesmo termi
 | 2 | `rm -rf MiniCrm.DbFirst` | **Limpar** o projeto, se ele já existir (opcional) |
 | 3 | `dotnet new mvc -n MiniCrm.DbFirst ...` | **Criar a base do projeto** (o esqueleto do site) |
 | 4 | `dotnet add package ...` | Instalar os 6 pacotes |
-| 5 | `sed`, `cat > ...` | Escrever a configuração: banco, porta e pluralizador |
+| 5 | `sed`, `cat > ...` | Escrever a configuração: o banco |
 | 6 | `dotnet ef dbcontext scaffold ...` | **Ler o banco** e gerar entidades e `DbContext` |
 | 7 | `perl -0pi -e '...' Models/*.cs` | Consertar um defeito do gerador (datas) |
 | 8 | `cat > Program.cs` | Ligar o `DbContext` gerado à aplicação |
 | 9 | `dotnet-aspnet-codegenerator controller ...` | Gerar controllers, API e telas de cada entidade |
-| 10 | `dotnet run --project MiniCrm.DbFirst` | Subir a aplicação |
+| 10 | `dotnet run --project MiniCrm.DbFirst --urls http://localhost:8095` | Subir a aplicação na porta 8095 |
 | 11 | (navegador) | Testar o CRUD nas telas e no Swagger |
 
 ### Passo 0 — Preparar o terminal
@@ -127,11 +127,11 @@ dotnet new mvc -n MiniCrm.DbFirst -o MiniCrm.DbFirst --no-restore
 | Item | Para que serve | Situação neste projeto |
 |---|---|---|
 | `MiniCrm.DbFirst.csproj` | Descreve o projeto: versão do .NET e pacotes | **Alterado** nos passos 4 e 5: entram os pacotes e `Nullable` passa de `enable` para `disable` |
-| `Program.cs` | Ponto de partida da aplicação (29 linhas no modelo) | **Reescrito** no passo 8: registra o `MiniCrmContext` com MySQL, evita ciclo no JSON, liga o Swagger e muda a página inicial para `Clientes` |
+| `Program.cs` | Ponto de partida da aplicação (29 linhas no modelo) | **Reescrito** no passo 8: registra o `MiniCrmContext` com MySQL, evita ciclo no JSON, liga o Swagger e muda a página inicial para `Cliente` |
 | `appsettings.json` | Configurações da aplicação | **Reescrito** no passo 5: acrescenta a `ConnectionStrings:MiniCrm`, o "como conectar no banco" |
 | `appsettings.Development.json` | Configurações só do modo de desenvolvimento | Igual ao modelo |
-| `Properties/launchSettings.json` | Como o `dotnet run` sobe (porta e ambiente) | **Reescrito** no passo 5: um só perfil, na porta 8095 e sem abrir o navegador (o modelo traz dois perfis, `http` e `https`) |
-| `Controllers/HomeController.cs` | Controller da página inicial padrão e da página de erro | Igual (a rota inicial passa a ser `Clientes`) |
+| `Properties/launchSettings.json` | Como o `dotnet run` sobe: define o ambiente `Development`, que serve o CSS e o Swagger | Igual ao modelo. As portas são **sorteadas** quando o projeto é criado, por isso o passo 10 fixa a porta com `--urls` |
+| `Controllers/HomeController.cs` | Controller da página inicial padrão e da página de erro | Igual (a rota inicial passa a ser `Cliente`) |
 | `Views/Home/` (`Index`, `Privacy`) | Telas de exemplo do modelo | Igual |
 | `Views/Shared/_Layout.cshtml` e `_Layout.cshtml.css` | **O esqueleto de toda página**: menu, rodapé e Bootstrap | Igual |
 | `Views/Shared/Error.cshtml` | Tela de erro | Igual |
@@ -163,7 +163,7 @@ cd ..
 | Pacote | Para quê |
 |---|---|
 | `Pomelo.EntityFrameworkCore.MySql` | O *provider*: faz o EF Core falar com o MySQL |
-| `Microsoft.EntityFrameworkCore.Design` | Peças que o `dotnet ef` usa na geração, inclusive o gancho do pluralizador |
+| `Microsoft.EntityFrameworkCore.Design` | Peças que o `dotnet ef` usa na geração |
 | `Microsoft.EntityFrameworkCore.Tools` | O gerador de CRUD exige |
 | `Microsoft.EntityFrameworkCore.SqlServer` | **Não é usado pela aplicação.** O gerador de CRUD só conhece SQL Server, SQLite, Cosmos e Postgres e se recusa a rodar sem ele, mesmo com MySQL (veja *Limitações*) |
 | `Microsoft.VisualStudio.Web.CodeGeneration.Design` | O motor do `dotnet-aspnet-codegenerator` |
@@ -171,19 +171,17 @@ cd ..
 
 ### Passo 5 — Escrever a configuração
 
-Quatro ajustes, todos no projeto `MiniCrm.DbFirst`. É o único trecho de código escrito à mão antes da geração.
+Dois ajustes, todos no projeto `MiniCrm.DbFirst`. É o único trecho de código escrito à mão antes da geração.
 
 **5a. Ajustes no `.csproj` e limpeza dos `.map`:**
 
 ```bash
 cd MiniCrm.DbFirst
 sed -i 's#<Nullable>enable</Nullable>#<Nullable>disable</Nullable>#' MiniCrm.DbFirst.csproj
-perl -0pi -e 's#(Microsoft\.EntityFrameworkCore\.Design".*?<IncludeAssets>)#$1compile; #s' MiniCrm.DbFirst.csproj
 find wwwroot -name '*.map' -delete
 ```
 
 - O `sed` desliga o `Nullable`: as entidades geradas não marcam o que pode ser nulo, e com ele ligado o compilador despejaria centenas de avisos.
-- O `perl` acrescenta `compile` ao `IncludeAssets` do pacote `Design`. O `dotnet add package` não faz isso, e o pluralizador do passo 5d precisa compilar contra esse pacote.
 - O `find` apaga os `.map` (sourcemaps) do Bootstrap e do jQuery: 6 MB que só servem para depurar no navegador.
 
 **5b. A connection string** (o "como conectar no banco"; nome do banco, porta, usuário e senha ficam só aqui):
@@ -203,68 +201,6 @@ cat > appsettings.json <<'EOF'
   }
 }
 EOF
-```
-
-**5c. Porta e ambiente** (o `dotnet run` usa a porta 8095 e o modo `Development`, que serve o CSS e o Swagger):
-
-```bash
-cat > Properties/launchSettings.json <<'EOF'
-{
-  "$schema": "https://json.schemastore.org/launchsettings.json",
-  "profiles": {
-    "http": {
-      "commandName": "Project",
-      "dotnetRunMessages": true,
-      "launchBrowser": false,
-      "applicationUrl": "http://localhost:8095",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    }
-  }
-}
-EOF
-```
-
-**5d. O pluralizador em português** (o padrão do EF só conhece inglês e geraria `MotivoPerdum` e `Interacaos`). O `dotnet ef` descobre esta classe sozinho, e ela só roda na geração, nunca na aplicação:
-
-```bash
-mkdir -p Design
-cat > Design/DesignTimeServices.cs <<'EOF'
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace MiniCrm.DbFirst.Design;
-
-// Descoberto automaticamente pelo "dotnet ef": só roda na geração do código, nunca na aplicação.
-public class DesignTimeServices : IDesignTimeServices
-{
-    public void ConfigureDesignTimeServices(IServiceCollection services)
-        => services.AddSingleton<IPluralizer, PluralizadorPortugues>();
-}
-
-/// <summary>
-/// O pluralizador padrão do EF só conhece inglês e gera nomes como "MotivoPerdum" e "Interacaos".
-/// As tabelas do Mini CRM já são singulares (cliente, interacao, motivo_perda), então só o plural
-/// precisa de regra; o singular fica como está.
-/// </summary>
-public class PluralizadorPortugues : IPluralizer
-{
-    public string Pluralize(string identifier)
-    {
-        if (string.IsNullOrEmpty(identifier)) return identifier;
-        if (identifier.EndsWith("ao", StringComparison.Ordinal)) return identifier[..^2] + "oes"; // Interacao -> Interacoes
-        if (identifier.EndsWith("m", StringComparison.Ordinal)) return identifier[..^1] + "ns";   // item -> itens
-        if (identifier.EndsWith("l", StringComparison.Ordinal)) return identifier[..^1] + "is";   // papel -> papeis
-        if (identifier.EndsWith("r", StringComparison.Ordinal) || identifier.EndsWith("z", StringComparison.Ordinal))
-            return identifier + "es";                                                              // valor -> valores
-        if (identifier.EndsWith("s", StringComparison.Ordinal)) return identifier;                 // ja esta no plural
-        return identifier + "s";                                                                   // Cliente -> Clientes
-    }
-
-    public string Singularize(string identifier) => identifier;
-}
-EOF
 cd ..
 ```
 
@@ -273,7 +209,7 @@ cd ..
 ```bash
 dotnet ef dbcontext scaffold "Name=ConnectionStrings:MiniCrm" Pomelo.EntityFrameworkCore.MySql \
   --project MiniCrm.DbFirst --output-dir Models --context MiniCrmContext --context-dir Data \
-  --data-annotations --no-onconfiguring --force
+  --data-annotations --no-onconfiguring --no-pluralize --force
 ```
 
 **O que faz:** é o **Database First em si**. O `dotnet ef` conecta no MySQL, lê as tabelas, colunas, chaves e relacionamentos e escreve uma classe C# por tabela mais o `MiniCrmContext`.
@@ -288,6 +224,7 @@ dotnet ef dbcontext scaffold "Name=ConnectionStrings:MiniCrm" Pomelo.EntityFrame
 | `--context MiniCrmContext --context-dir Data` | nome e pasta do `DbContext` |
 | `--data-annotations` | marca as classes com `[Key]`, `[Required]`, `[StringLength]`, que as telas usam para validar |
 | `--no-onconfiguring` | **não** grava a connection string dentro do `DbContext` |
+| `--no-pluralize` | **não** aplica plural nem singular aos nomes: a tabela `interacao` vira a entidade `Interacao` e a coleção `Interacao`. Sem ele, o EF usaria regras do inglês e sairia `Interacaos`, e `motivo_perda` viraria `MotivoPerdum` |
 | `--force` | sobrescreve o que já existe |
 
 **Você deve ver:**
@@ -358,14 +295,14 @@ app.MapStaticAssets();
 // A tela inicial é a lista de clientes gerada.
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Clientes}/{action=Index}/{id?}")
+    pattern: "{controller=Cliente}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 app.Run();
 EOF
 ```
 
-**O que faz:** troca o `Program.cs` do modelo pelo da aplicação. Ele registra o `MiniCrmContext` (`AddDbContext`), diz que o banco é MySQL (`UseMySql`, com a connection string do `appsettings.json`), evita o ciclo Cliente → Oportunidades → Cliente ao serializar a API, liga o Swagger e faz a tela inicial ser a lista de `Clientes`.
+**O que faz:** troca o `Program.cs` do modelo pelo da aplicação. Ele registra o `MiniCrmContext` (`AddDbContext`), diz que o banco é MySQL (`UseMySql`, com a connection string do `appsettings.json`), evita o ciclo Cliente → Oportunidades → Cliente ao serializar a API, liga o Swagger e faz a tela inicial ser a lista de `Cliente`.
 **Por que só agora:** esse arquivo usa o `MiniCrmContext`, que só existe depois do passo 6. E o passo 9 **precisa** dele: o gerador de CRUD cria o contexto a partir do `AddDbContext` e, sem ele, falha com `Unable to resolve service for type 'DbContextOptions<MiniCrmContext>'`. Ele falha **mas termina sem erro**, e nenhuma tela é gerada; se isso acontecer, o passo 8 foi pulado.
 
 ### Passo 9 — Gerar o CRUD e as telas de cada entidade
@@ -391,7 +328,7 @@ done
 
 **O que faz**, em três partes:
 
-1. **`sed ... Data/MiniCrmContext.cs`** lê o `DbContext` que o passo 6 gerou e extrai, de cada linha `public virtual DbSet<Cliente> Clientes { get; set; }`, o par `Cliente Clientes` (entidade e coleção). Como a lista vem do banco, uma tabela nova entra sozinha.
+1. **`sed ... Data/MiniCrmContext.cs`** lê o `DbContext` que o passo 6 gerou e extrai, de cada linha `public virtual DbSet<Cliente> Cliente { get; set; }`, o par `Cliente Cliente` (entidade e coleção, que têm o mesmo nome por causa do `--no-pluralize`). Como a lista vem do banco, uma tabela nova entra sozinha.
 2. **`while read entidade colecao; do ... done`** repete o bloco para cada par.
 3. **Dentro do laço**, duas chamadas do gerador:
    - a **primeira** (sem `-api`) cria o controller MVC e as **5 telas** (`Index`, `Details`, `Create`, `Edit`, `Delete`);
@@ -399,7 +336,7 @@ done
 
 | Opção do gerador | Significado |
 |---|---|
-| `-name ClientesController` | nome do controller |
+| `-name ClienteController` | nome do controller |
 | `-m Cliente` | o **model**, a entidade em que ele se baseia |
 | `-dc MiniCrmContext` | o **data context**, que fala com o banco |
 | `--relativeFolderPath` | pasta onde gravar |
@@ -410,10 +347,10 @@ done
 **Você deve ver** 9 linhas, uma por entidade:
 
 ```
-  Cliente -> tela /Clientes  |  API /api/Clientes
-  HistoricoEtapa -> tela /HistoricoEtapas  |  API /api/HistoricoEtapas
+  Cliente -> tela /Cliente  |  API /api/Cliente
+  HistoricoEtapa -> tela /HistoricoEtapa  |  API /api/HistoricoEtapa
   ...
-  Usuario -> tela /Usuarios  |  API /api/Usuarios
+  Usuario -> tela /Usuario  |  API /api/Usuario
 ```
 
 **9c. Voltar para a pasta `dbfirst/`:**
@@ -427,17 +364,17 @@ Resultado: 9 controllers MVC, 9 de API e 45 views. O `MiniCrm.DbFirst.csproj` n�
 ### Passo 10 — Subir a aplicação
 
 ```bash
-dotnet run --project MiniCrm.DbFirst
+dotnet run --project MiniCrm.DbFirst --urls http://localhost:8095
 ```
 
-**O que faz:** compila e sobe o site, conectado ao MySQL do passo 1. Usa a porta 8095 e o ambiente `Development` definidos em `Properties/launchSettings.json`.
+**O que faz:** compila e sobe o site, conectado ao MySQL do passo 1. O `--urls` fixa a porta 8095 (sem ele, o `dotnet run` usa a porta sorteada no `launchSettings.json` do modelo e tenta abrir o navegador). O ambiente `Development`, que serve o CSS e o Swagger, vem desse mesmo `launchSettings.json`.
 **Você deve ver:** `Now listening on: http://localhost:8095`. Deixe esse terminal aberto; `Ctrl+C` encerra.
 
 ### Passo 11 — Testar o CRUD no navegador
 
 - **http://localhost:8095** abre a lista de clientes (telas geradas). Use `Create New`, `Edit`, `Details` e `Delete`.
 - **http://localhost:8095/swagger** lista os 9 recursos da API com GET, POST, PUT e DELETE. Expanda um endpoint e use `Try it out`.
-- As demais telas: `/Oportunidades`, `/Tarefas`, `/Interacoes`, `/Usuarios`, `/HistoricoEtapas`, `/MotivoPerdas`, `/Notificacoes` e `/TokenRecuperacoes`.
+- As demais telas: `/Oportunidade`, `/Tarefa`, `/Interacao`, `/Usuario`, `/HistoricoEtapa`, `/MotivoPerda`, `/Notificacao` e `/TokenRecuperacao`.
 
 ### Começar do zero de novo
 
@@ -453,7 +390,7 @@ docker exec minicrm-mysql-dbfirst mysql -uroot -prootpw mini_crm_db -e \
    INSERT INTO produto (nome, preco) VALUES ('Plano Premium', 199.90);"
 ```
 
-Repita os **passos 6, 7 e 9** (o `sed` do passo 9b descobre a tabela nova sozinho; o projeto e o `Program.cs` não mudam) e o **passo 10**. Surgem `Models/Produto.cs`, `ProdutosController` e `Views/Produtos`; a tela fica em `http://localhost:8095/Produtos`.
+Repita os **passos 6, 7 e 9** (o `sed` do passo 9b descobre a tabela nova sozinho; o projeto e o `Program.cs` não mudam) e o **passo 10**. Surgem `Models/Produto.cs`, `ProdutoController` e `Views/Produto`; a tela fica em `http://localhost:8095/Produto`.
 
 Para voltar ao estado original: `DROP TABLE produto;` no MySQL e refaça **do passo 2 ao 9** (o passo 2 apaga os arquivos de `Produto`; sem apagar, eles ficariam órfãos e o projeto deixaria de compilar).
 
@@ -475,7 +412,7 @@ cd dbfirst
 docker compose up -d --wait   # 1. banco com as 9 tabelas e dados de exemplo (MySQL 8.4, porta 3307)
 ./scripts/gerar.sh            # 2. entidades e DbContext gerados a partir do banco
 ./scripts/gerar-crud.sh       # 3. controllers, telas e API gerados a partir das entidades
-dotnet run --project MiniCrm.DbFirst   # 4. aplicação em http://localhost:8095
+dotnet run --project MiniCrm.DbFirst --urls http://localhost:8095   # 4. aplicação em http://localhost:8095
 ```
 
 Se o terminal responder `dotnet: command not found` no último comando, rode antes o `export` do passo 0 (os dois scripts já o fazem sozinhos, mas o `dotnet run` está fora deles).
@@ -486,8 +423,8 @@ Os scripts **apagam e regeram tudo a cada execução**, então servem também pa
 docker exec minicrm-mysql-dbfirst mysql -uroot -prootpw mini_crm_db -e \
   "CREATE TABLE produto (id_produto INT AUTO_INCREMENT PRIMARY KEY, nome VARCHAR(100) NOT NULL, preco DECIMAL(10,2) NOT NULL);
    INSERT INTO produto (nome, preco) VALUES ('Plano Premium', 199.90);"
-./scripts/gerar.sh && ./scripts/gerar-crud.sh   # surgem Models/Produto.cs, ProdutosController e Views/Produtos
-dotnet run --project MiniCrm.DbFirst            # http://localhost:8095/Produtos
+./scripts/gerar.sh && ./scripts/gerar-crud.sh   # surgem Models/Produto.cs, ProdutoController e Views/Produto
+dotnet run --project MiniCrm.DbFirst --urls http://localhost:8095   # http://localhost:8095/Produto
 ```
 
 Para voltar ao estado original: `DROP TABLE produto;` e rode `gerar.sh` e `gerar-crud.sh` de novo.
@@ -502,7 +439,7 @@ Para voltar ao estado original: `DROP TABLE produto;` e rode `gerar.sh` e `gerar
 - **Sem camada de service nem regras de negócio.** Os controllers gerados usam o `MiniCrmContext` direto. Escopo de carteira, transições do funil e status automático continuam no backend principal.
 - **Arquivos estáticos do template.** O `wwwroot/lib` (Bootstrap e jQuery do template MVC) vem sem os `.map` (6 MB de sourcemaps, só úteis para depurar no navegador).
 - **Telas genéricas**, em inglês (`Index`, `Create New`) e com os campos na ordem alfabética das colunas.
-- **Nomes mecânicos.** A chave `id_vendedor` vira a navegação `IdVendedorNavigation`. O pluralizador padrão do EF só conhece inglês e gerava `MotivoPerdum` e `Interacaos`, então o projeto traz um `IPluralizer` em português (`Design/DesignTimeServices.cs`).
+- **Nomes mecânicos.** A chave `id_vendedor` vira a navegação `IdVendedorNavigation`. Com `--no-pluralize`, a coleção tem o mesmo nome da entidade (`_context.Cliente`, `/Cliente`, `/api/Cliente`), e a lista de clientes dentro de `Usuario` se chama `Cliente`, não `Clientes`. O C# aceita e compila, mas a leitura fica menos clara. Sem a opção, o pluralizador padrão do EF (só inglês) geraria `Interacaos` e `MotivoPerdum`.
 - **Tipos.** `bit(1)` (`excluido`) vira `ulong` e `datetime` vira `DateTime`.
 - **`[MaxLength(6)]` em campos de data.** Com `--data-annotations`, o Pomelo marca colunas `datetime(6)` com `[MaxLength(6)]`, e o ASP.NET quebra na validação (HTTP 500). O passo 7 (ou o `gerar.sh`) remove só esse atributo.
 - **O gerador de controllers não conhece MySQL.** O `dotnet-aspnet-codegenerator` só oferece SQL Server, SQLite, Cosmos e Postgres e exige o pacote do SQL Server no projeto, mesmo com MySQL. Por isso o passo 4 instala o `Microsoft.EntityFrameworkCore.SqlServer` sem a aplicação usá-lo: custa cerca de 50 MB no cache do NuGet e algumas DLLs no `bin/`. O gerador também exige `Microsoft.EntityFrameworkCore.Tools`, instalado no mesmo passo. Quando existir uma versão do gerador que reconheça MySQL, o pacote do SQL Server pode ser removido.

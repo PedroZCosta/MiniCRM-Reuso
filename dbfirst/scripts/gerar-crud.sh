@@ -11,7 +11,7 @@ cd "$PROJETO"
 CONTEXTO=Data/MiniCrmContext.cs
 [ -f "$CONTEXTO" ] || { echo "ERRO: $CONTEXTO não existe. Rode ./scripts/gerar.sh primeiro." >&2; exit 1; }
 
-# Pares "Entidade Colecao" lidos do DbContext gerado (ex.: "Cliente Clientes").
+# Pares "Entidade Colecao" lidos do DbContext gerado (ex.: "Cliente Cliente", entidade e coleção têm o mesmo nome por causa do --no-pluralize).
 mapfile -t PARES < <(sed -nE 's/^ *public virtual DbSet<([A-Za-z]+)> ([A-Za-z]+) \{ get; set; \}.*/\1 \2/p' "$CONTEXTO")
 [ "${#PARES[@]}" -gt 0 ] || { echo "ERRO: nenhum DbSet encontrado em $CONTEXTO." >&2; exit 1; }
 

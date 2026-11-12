@@ -12,47 +12,47 @@ namespace MiniCrm.DbFirst.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TarefasController : ControllerBase
+    public class NotificacaoController : ControllerBase
     {
         private readonly MiniCrmContext _context;
 
-        public TarefasController(MiniCrmContext context)
+        public NotificacaoController(MiniCrmContext context)
         {
             _context = context;
         }
 
-        // GET: api/Tarefas
+        // GET: api/Notificacao
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Tarefa>>> GetTarefas()
+        public async Task<ActionResult<IEnumerable<Notificacao>>> GetNotificacao()
         {
-            return await _context.Tarefas.ToListAsync();
+            return await _context.Notificacao.ToListAsync();
         }
 
-        // GET: api/Tarefas/5
+        // GET: api/Notificacao/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Tarefa>> GetTarefa(int id)
+        public async Task<ActionResult<Notificacao>> GetNotificacao(int id)
         {
-            var tarefa = await _context.Tarefas.FindAsync(id);
+            var notificacao = await _context.Notificacao.FindAsync(id);
 
-            if (tarefa == null)
+            if (notificacao == null)
             {
                 return NotFound();
             }
 
-            return tarefa;
+            return notificacao;
         }
 
-        // PUT: api/Tarefas/5
+        // PUT: api/Notificacao/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTarefa(int id, Tarefa tarefa)
+        public async Task<IActionResult> PutNotificacao(int id, Notificacao notificacao)
         {
-            if (id != tarefa.IdTarefa)
+            if (id != notificacao.IdNotificacao)
             {
                 return BadRequest();
             }
 
-            _context.Entry(tarefa).State = EntityState.Modified;
+            _context.Entry(notificacao).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace MiniCrm.DbFirst.Controllers.Api
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!TarefaExists(id))
+                if (!NotificacaoExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +73,36 @@ namespace MiniCrm.DbFirst.Controllers.Api
             return NoContent();
         }
 
-        // POST: api/Tarefas
+        // POST: api/Notificacao
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Tarefa>> PostTarefa(Tarefa tarefa)
+        public async Task<ActionResult<Notificacao>> PostNotificacao(Notificacao notificacao)
         {
-            _context.Tarefas.Add(tarefa);
+            _context.Notificacao.Add(notificacao);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTarefa", new { id = tarefa.IdTarefa }, tarefa);
+            return CreatedAtAction("GetNotificacao", new { id = notificacao.IdNotificacao }, notificacao);
         }
 
-        // DELETE: api/Tarefas/5
+        // DELETE: api/Notificacao/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTarefa(int id)
+        public async Task<IActionResult> DeleteNotificacao(int id)
         {
-            var tarefa = await _context.Tarefas.FindAsync(id);
-            if (tarefa == null)
+            var notificacao = await _context.Notificacao.FindAsync(id);
+            if (notificacao == null)
             {
                 return NotFound();
             }
 
-            _context.Tarefas.Remove(tarefa);
+            _context.Notificacao.Remove(notificacao);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool TarefaExists(int id)
+        private bool NotificacaoExists(int id)
         {
-            return _context.Tarefas.Any(e => e.IdTarefa == id);
+            return _context.Notificacao.Any(e => e.IdNotificacao == id);
         }
     }
 }

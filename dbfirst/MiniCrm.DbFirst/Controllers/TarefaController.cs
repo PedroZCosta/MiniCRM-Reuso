@@ -10,23 +10,23 @@ using MiniCrm.DbFirst.Models;
 
 namespace MiniCrm.DbFirst.Controllers
 {
-    public class TarefasController : Controller
+    public class TarefaController : Controller
     {
         private readonly MiniCrmContext _context;
 
-        public TarefasController(MiniCrmContext context)
+        public TarefaController(MiniCrmContext context)
         {
             _context = context;
         }
 
-        // GET: Tarefas
+        // GET: Tarefa
         public async Task<IActionResult> Index()
         {
-            var miniCrmContext = _context.Tarefas.Include(t => t.IdClienteNavigation).Include(t => t.IdOportunidadeNavigation).Include(t => t.IdUsuarioNavigation);
+            var miniCrmContext = _context.Tarefa.Include(t => t.IdClienteNavigation).Include(t => t.IdOportunidadeNavigation).Include(t => t.IdUsuarioNavigation);
             return View(await miniCrmContext.ToListAsync());
         }
 
-        // GET: Tarefas/Details/5
+        // GET: Tarefa/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,7 +34,7 @@ namespace MiniCrm.DbFirst.Controllers
                 return NotFound();
             }
 
-            var tarefa = await _context.Tarefas
+            var tarefa = await _context.Tarefa
                 .Include(t => t.IdClienteNavigation)
                 .Include(t => t.IdOportunidadeNavigation)
                 .Include(t => t.IdUsuarioNavigation)
@@ -47,16 +47,16 @@ namespace MiniCrm.DbFirst.Controllers
             return View(tarefa);
         }
 
-        // GET: Tarefas/Create
+        // GET: Tarefa/Create
         public IActionResult Create()
         {
-            ViewData["IdCliente"] = new SelectList(_context.Clientes, "IdCliente", "Email");
-            ViewData["IdOportunidade"] = new SelectList(_context.Oportunidades, "IdOportunidade", "Etapa");
-            ViewData["IdUsuario"] = new SelectList(_context.Usuarios, "IdUsuario", "Email");
+            ViewData["IdCliente"] = new SelectList(_context.Cliente, "IdCliente", "Email");
+            ViewData["IdOportunidade"] = new SelectList(_context.Oportunidade, "IdOportunidade", "Etapa");
+            ViewData["IdUsuario"] = new SelectList(_context.Usuario, "IdUsuario", "Email");
             return View();
         }
 
-        // POST: Tarefas/Create
+        // POST: Tarefa/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -69,13 +69,13 @@ namespace MiniCrm.DbFirst.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdCliente"] = new SelectList(_context.Clientes, "IdCliente", "Email", tarefa.IdCliente);
-            ViewData["IdOportunidade"] = new SelectList(_context.Oportunidades, "IdOportunidade", "Etapa", tarefa.IdOportunidade);
-            ViewData["IdUsuario"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", tarefa.IdUsuario);
+            ViewData["IdCliente"] = new SelectList(_context.Cliente, "IdCliente", "Email", tarefa.IdCliente);
+            ViewData["IdOportunidade"] = new SelectList(_context.Oportunidade, "IdOportunidade", "Etapa", tarefa.IdOportunidade);
+            ViewData["IdUsuario"] = new SelectList(_context.Usuario, "IdUsuario", "Email", tarefa.IdUsuario);
             return View(tarefa);
         }
 
-        // GET: Tarefas/Edit/5
+        // GET: Tarefa/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -83,18 +83,18 @@ namespace MiniCrm.DbFirst.Controllers
                 return NotFound();
             }
 
-            var tarefa = await _context.Tarefas.FindAsync(id);
+            var tarefa = await _context.Tarefa.FindAsync(id);
             if (tarefa == null)
             {
                 return NotFound();
             }
-            ViewData["IdCliente"] = new SelectList(_context.Clientes, "IdCliente", "Email", tarefa.IdCliente);
-            ViewData["IdOportunidade"] = new SelectList(_context.Oportunidades, "IdOportunidade", "Etapa", tarefa.IdOportunidade);
-            ViewData["IdUsuario"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", tarefa.IdUsuario);
+            ViewData["IdCliente"] = new SelectList(_context.Cliente, "IdCliente", "Email", tarefa.IdCliente);
+            ViewData["IdOportunidade"] = new SelectList(_context.Oportunidade, "IdOportunidade", "Etapa", tarefa.IdOportunidade);
+            ViewData["IdUsuario"] = new SelectList(_context.Usuario, "IdUsuario", "Email", tarefa.IdUsuario);
             return View(tarefa);
         }
 
-        // POST: Tarefas/Edit/5
+        // POST: Tarefa/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -126,13 +126,13 @@ namespace MiniCrm.DbFirst.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdCliente"] = new SelectList(_context.Clientes, "IdCliente", "Email", tarefa.IdCliente);
-            ViewData["IdOportunidade"] = new SelectList(_context.Oportunidades, "IdOportunidade", "Etapa", tarefa.IdOportunidade);
-            ViewData["IdUsuario"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", tarefa.IdUsuario);
+            ViewData["IdCliente"] = new SelectList(_context.Cliente, "IdCliente", "Email", tarefa.IdCliente);
+            ViewData["IdOportunidade"] = new SelectList(_context.Oportunidade, "IdOportunidade", "Etapa", tarefa.IdOportunidade);
+            ViewData["IdUsuario"] = new SelectList(_context.Usuario, "IdUsuario", "Email", tarefa.IdUsuario);
             return View(tarefa);
         }
 
-        // GET: Tarefas/Delete/5
+        // GET: Tarefa/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -140,7 +140,7 @@ namespace MiniCrm.DbFirst.Controllers
                 return NotFound();
             }
 
-            var tarefa = await _context.Tarefas
+            var tarefa = await _context.Tarefa
                 .Include(t => t.IdClienteNavigation)
                 .Include(t => t.IdOportunidadeNavigation)
                 .Include(t => t.IdUsuarioNavigation)
@@ -153,15 +153,15 @@ namespace MiniCrm.DbFirst.Controllers
             return View(tarefa);
         }
 
-        // POST: Tarefas/Delete/5
+        // POST: Tarefa/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var tarefa = await _context.Tarefas.FindAsync(id);
+            var tarefa = await _context.Tarefa.FindAsync(id);
             if (tarefa != null)
             {
-                _context.Tarefas.Remove(tarefa);
+                _context.Tarefa.Remove(tarefa);
             }
 
             await _context.SaveChangesAsync();
@@ -170,7 +170,7 @@ namespace MiniCrm.DbFirst.Controllers
 
         private bool TarefaExists(int id)
         {
-            return _context.Tarefas.Any(e => e.IdTarefa == id);
+            return _context.Tarefa.Any(e => e.IdTarefa == id);
         }
     }
 }

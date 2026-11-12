@@ -12,47 +12,47 @@ namespace MiniCrm.DbFirst.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class NotificacoesController : ControllerBase
+    public class InteracaoController : ControllerBase
     {
         private readonly MiniCrmContext _context;
 
-        public NotificacoesController(MiniCrmContext context)
+        public InteracaoController(MiniCrmContext context)
         {
             _context = context;
         }
 
-        // GET: api/Notificacoes
+        // GET: api/Interacao
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Notificacao>>> GetNotificacoes()
+        public async Task<ActionResult<IEnumerable<Interacao>>> GetInteracao()
         {
-            return await _context.Notificacoes.ToListAsync();
+            return await _context.Interacao.ToListAsync();
         }
 
-        // GET: api/Notificacoes/5
+        // GET: api/Interacao/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Notificacao>> GetNotificacao(int id)
+        public async Task<ActionResult<Interacao>> GetInteracao(int id)
         {
-            var notificacao = await _context.Notificacoes.FindAsync(id);
+            var interacao = await _context.Interacao.FindAsync(id);
 
-            if (notificacao == null)
+            if (interacao == null)
             {
                 return NotFound();
             }
 
-            return notificacao;
+            return interacao;
         }
 
-        // PUT: api/Notificacoes/5
+        // PUT: api/Interacao/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutNotificacao(int id, Notificacao notificacao)
+        public async Task<IActionResult> PutInteracao(int id, Interacao interacao)
         {
-            if (id != notificacao.IdNotificacao)
+            if (id != interacao.IdInteracao)
             {
                 return BadRequest();
             }
 
-            _context.Entry(notificacao).State = EntityState.Modified;
+            _context.Entry(interacao).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace MiniCrm.DbFirst.Controllers.Api
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!NotificacaoExists(id))
+                if (!InteracaoExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +73,36 @@ namespace MiniCrm.DbFirst.Controllers.Api
             return NoContent();
         }
 
-        // POST: api/Notificacoes
+        // POST: api/Interacao
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Notificacao>> PostNotificacao(Notificacao notificacao)
+        public async Task<ActionResult<Interacao>> PostInteracao(Interacao interacao)
         {
-            _context.Notificacoes.Add(notificacao);
+            _context.Interacao.Add(interacao);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetNotificacao", new { id = notificacao.IdNotificacao }, notificacao);
+            return CreatedAtAction("GetInteracao", new { id = interacao.IdInteracao }, interacao);
         }
 
-        // DELETE: api/Notificacoes/5
+        // DELETE: api/Interacao/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteNotificacao(int id)
+        public async Task<IActionResult> DeleteInteracao(int id)
         {
-            var notificacao = await _context.Notificacoes.FindAsync(id);
-            if (notificacao == null)
+            var interacao = await _context.Interacao.FindAsync(id);
+            if (interacao == null)
             {
                 return NotFound();
             }
 
-            _context.Notificacoes.Remove(notificacao);
+            _context.Interacao.Remove(interacao);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool NotificacaoExists(int id)
+        private bool InteracaoExists(int id)
         {
-            return _context.Notificacoes.Any(e => e.IdNotificacao == id);
+            return _context.Interacao.Any(e => e.IdInteracao == id);
         }
     }
 }

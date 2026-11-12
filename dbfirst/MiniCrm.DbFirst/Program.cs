@@ -36,7 +36,7 @@ app.MapStaticAssets();
 // A tela inicial é a lista de clientes gerada.
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Clientes}/{action=Index}/{id?}")
+    pattern: "{controller=Cliente}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 app.Run();

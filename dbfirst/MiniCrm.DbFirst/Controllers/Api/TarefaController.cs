@@ -12,47 +12,47 @@ namespace MiniCrm.DbFirst.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OportunidadesController : ControllerBase
+    public class TarefaController : ControllerBase
     {
         private readonly MiniCrmContext _context;
 
-        public OportunidadesController(MiniCrmContext context)
+        public TarefaController(MiniCrmContext context)
         {
             _context = context;
         }
 
-        // GET: api/Oportunidades
+        // GET: api/Tarefa
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Oportunidade>>> GetOportunidades()
+        public async Task<ActionResult<IEnumerable<Tarefa>>> GetTarefa()
         {
-            return await _context.Oportunidades.ToListAsync();
+            return await _context.Tarefa.ToListAsync();
         }
 
-        // GET: api/Oportunidades/5
+        // GET: api/Tarefa/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Oportunidade>> GetOportunidade(int id)
+        public async Task<ActionResult<Tarefa>> GetTarefa(int id)
         {
-            var oportunidade = await _context.Oportunidades.FindAsync(id);
+            var tarefa = await _context.Tarefa.FindAsync(id);
 
-            if (oportunidade == null)
+            if (tarefa == null)
             {
                 return NotFound();
             }
 
-            return oportunidade;
+            return tarefa;
         }
 
-        // PUT: api/Oportunidades/5
+        // PUT: api/Tarefa/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutOportunidade(int id, Oportunidade oportunidade)
+        public async Task<IActionResult> PutTarefa(int id, Tarefa tarefa)
         {
-            if (id != oportunidade.IdOportunidade)
+            if (id != tarefa.IdTarefa)
             {
                 return BadRequest();
             }
 
-            _context.Entry(oportunidade).State = EntityState.Modified;
+            _context.Entry(tarefa).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace MiniCrm.DbFirst.Controllers.Api
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!OportunidadeExists(id))
+                if (!TarefaExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +73,36 @@ namespace MiniCrm.DbFirst.Controllers.Api
             return NoContent();
         }
 
-        // POST: api/Oportunidades
+        // POST: api/Tarefa
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Oportunidade>> PostOportunidade(Oportunidade oportunidade)
+        public async Task<ActionResult<Tarefa>> PostTarefa(Tarefa tarefa)
         {
-            _context.Oportunidades.Add(oportunidade);
+            _context.Tarefa.Add(tarefa);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetOportunidade", new { id = oportunidade.IdOportunidade }, oportunidade);
+            return CreatedAtAction("GetTarefa", new { id = tarefa.IdTarefa }, tarefa);
         }
 
-        // DELETE: api/Oportunidades/5
+        // DELETE: api/Tarefa/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOportunidade(int id)
+        public async Task<IActionResult> DeleteTarefa(int id)
         {
-            var oportunidade = await _context.Oportunidades.FindAsync(id);
-            if (oportunidade == null)
+            var tarefa = await _context.Tarefa.FindAsync(id);
+            if (tarefa == null)
             {
                 return NotFound();
             }
 
-            _context.Oportunidades.Remove(oportunidade);
+            _context.Tarefa.Remove(tarefa);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool OportunidadeExists(int id)
+        private bool TarefaExists(int id)
         {
-            return _context.Oportunidades.Any(e => e.IdOportunidade == id);
+            return _context.Tarefa.Any(e => e.IdTarefa == id);
         }
     }
 }

@@ -59,30 +59,30 @@ public partial class Usuario
     public int? IdGerente { get; set; }
 
     [InverseProperty("IdVendedorNavigation")]
-    public virtual ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
+    public virtual ICollection<Cliente> Cliente { get; set; } = new List<Cliente>();
 
     [InverseProperty("IdUsuarioNavigation")]
-    public virtual ICollection<HistoricoEtapa> HistoricoEtapas { get; set; } = new List<HistoricoEtapa>();
+    public virtual ICollection<HistoricoEtapa> HistoricoEtapa { get; set; } = new List<HistoricoEtapa>();
 
     [ForeignKey("IdGerente")]
     [InverseProperty("InverseIdGerenteNavigation")]
     public virtual Usuario IdGerenteNavigation { get; set; }
 
     [InverseProperty("IdUsuarioNavigation")]
-    public virtual ICollection<Interacao> Interacoes { get; set; } = new List<Interacao>();
+    public virtual ICollection<Interacao> Interacao { get; set; } = new List<Interacao>();
 
     [InverseProperty("IdGerenteNavigation")]
     public virtual ICollection<Usuario> InverseIdGerenteNavigation { get; set; } = new List<Usuario>();
 
     [InverseProperty("IdUsuarioNavigation")]
-    public virtual ICollection<Notificacao> Notificacoes { get; set; } = new List<Notificacao>();
+    public virtual ICollection<Notificacao> Notificacao { get; set; } = new List<Notificacao>();
 
     [InverseProperty("IdVendedorNavigation")]
-    public virtual ICollection<Oportunidade> Oportunidades { get; set; } = new List<Oportunidade>();
+    public virtual ICollection<Oportunidade> Oportunidade { get; set; } = new List<Oportunidade>();
 
     [InverseProperty("IdUsuarioNavigation")]
-    public virtual ICollection<Tarefa> Tarefas { get; set; } = new List<Tarefa>();
+    public virtual ICollection<Tarefa> Tarefa { get; set; } = new List<Tarefa>();
 
     [InverseProperty("IdUsuarioNavigation")]
-    public virtual ICollection<TokenRecuperacao> TokenRecuperacoes { get; set; } = new List<TokenRecuperacao>();
+    public virtual ICollection<TokenRecuperacao> TokenRecuperacao { get; set; } = new List<TokenRecuperacao>();
 }

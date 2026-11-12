@@ -10,90 +10,85 @@ using MiniCrm.DbFirst.Models;
 
 namespace MiniCrm.DbFirst.Controllers
 {
-    public class ClientesController : Controller
+    public class MotivoPerdaController : Controller
     {
         private readonly MiniCrmContext _context;
 
-        public ClientesController(MiniCrmContext context)
+        public MotivoPerdaController(MiniCrmContext context)
         {
             _context = context;
         }
 
-        // GET: Clientes
+        // GET: MotivoPerda
         public async Task<IActionResult> Index()
         {
-            var miniCrmContext = _context.Clientes.Include(c => c.IdVendedorNavigation);
-            return View(await miniCrmContext.ToListAsync());
+            return View(await _context.MotivoPerda.ToListAsync());
         }
 
-        // GET: Clientes/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: MotivoPerda/Details/5
+        public async Task<IActionResult> Details(sbyte? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var cliente = await _context.Clientes
-                .Include(c => c.IdVendedorNavigation)
-                .FirstOrDefaultAsync(m => m.IdCliente == id);
-            if (cliente == null)
+            var motivoPerda = await _context.MotivoPerda
+                .FirstOrDefaultAsync(m => m.IdMotivo == id);
+            if (motivoPerda == null)
             {
                 return NotFound();
             }
 
-            return View(cliente);
+            return View(motivoPerda);
         }
 
-        // GET: Clientes/Create
+        // GET: MotivoPerda/Create
         public IActionResult Create()
         {
-            ViewData["IdVendedor"] = new SelectList(_context.Usuarios, "IdUsuario", "Email");
             return View();
         }
 
-        // POST: Clientes/Create
+        // POST: MotivoPerda/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IdCliente,AtualizadoEm,CriadoEm,Email,Empresa,Excluido,Nome,Status,Telefone,IdVendedor")] Cliente cliente)
+        public async Task<IActionResult> Create([Bind("IdMotivo,Descricao")] MotivoPerda motivoPerda)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(cliente);
+                _context.Add(motivoPerda);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdVendedor"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", cliente.IdVendedor);
-            return View(cliente);
+            return View(motivoPerda);
         }
 
-        // GET: Clientes/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // GET: MotivoPerda/Edit/5
+        public async Task<IActionResult> Edit(sbyte? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var cliente = await _context.Clientes.FindAsync(id);
-            if (cliente == null)
+            var motivoPerda = await _context.MotivoPerda.FindAsync(id);
+            if (motivoPerda == null)
             {
                 return NotFound();
             }
-            ViewData["IdVendedor"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", cliente.IdVendedor);
-            return View(cliente);
+            return View(motivoPerda);
         }
 
-        // POST: Clientes/Edit/5
+        // POST: MotivoPerda/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IdCliente,AtualizadoEm,CriadoEm,Email,Empresa,Excluido,Nome,Status,Telefone,IdVendedor")] Cliente cliente)
+        public async Task<IActionResult> Edit(sbyte id, [Bind("IdMotivo,Descricao")] MotivoPerda motivoPerda)
         {
-            if (id != cliente.IdCliente)
+            if (id != motivoPerda.IdMotivo)
             {
                 return NotFound();
             }
@@ -102,12 +97,12 @@ namespace MiniCrm.DbFirst.Controllers
             {
                 try
                 {
-                    _context.Update(cliente);
+                    _context.Update(motivoPerda);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ClienteExists(cliente.IdCliente))
+                    if (!MotivoPerdaExists(motivoPerda.IdMotivo))
                     {
                         return NotFound();
                     }
@@ -118,47 +113,45 @@ namespace MiniCrm.DbFirst.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdVendedor"] = new SelectList(_context.Usuarios, "IdUsuario", "Email", cliente.IdVendedor);
-            return View(cliente);
+            return View(motivoPerda);
         }
 
-        // GET: Clientes/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // GET: MotivoPerda/Delete/5
+        public async Task<IActionResult> Delete(sbyte? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var cliente = await _context.Clientes
-                .Include(c => c.IdVendedorNavigation)
-                .FirstOrDefaultAsync(m => m.IdCliente == id);
-            if (cliente == null)
+            var motivoPerda = await _context.MotivoPerda
+                .FirstOrDefaultAsync(m => m.IdMotivo == id);
+            if (motivoPerda == null)
             {
                 return NotFound();
             }
 
-            return View(cliente);
+            return View(motivoPerda);
         }
 
-        // POST: Clientes/Delete/5
+        // POST: MotivoPerda/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(sbyte id)
         {
-            var cliente = await _context.Clientes.FindAsync(id);
-            if (cliente != null)
+            var motivoPerda = await _context.MotivoPerda.FindAsync(id);
+            if (motivoPerda != null)
             {
-                _context.Clientes.Remove(cliente);
+                _context.MotivoPerda.Remove(motivoPerda);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ClienteExists(int id)
+        private bool MotivoPerdaExists(sbyte id)
         {
-            return _context.Clientes.Any(e => e.IdCliente == id);
+            return _context.MotivoPerda.Any(e => e.IdMotivo == id);
         }
     }
 }

@@ -12,27 +12,27 @@ namespace MiniCrm.DbFirst.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class HistoricoEtapasController : ControllerBase
+    public class HistoricoEtapaController : ControllerBase
     {
         private readonly MiniCrmContext _context;
 
-        public HistoricoEtapasController(MiniCrmContext context)
+        public HistoricoEtapaController(MiniCrmContext context)
         {
             _context = context;
         }
 
-        // GET: api/HistoricoEtapas
+        // GET: api/HistoricoEtapa
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<HistoricoEtapa>>> GetHistoricoEtapas()
+        public async Task<ActionResult<IEnumerable<HistoricoEtapa>>> GetHistoricoEtapa()
         {
-            return await _context.HistoricoEtapas.ToListAsync();
+            return await _context.HistoricoEtapa.ToListAsync();
         }
 
-        // GET: api/HistoricoEtapas/5
+        // GET: api/HistoricoEtapa/5
         [HttpGet("{id}")]
         public async Task<ActionResult<HistoricoEtapa>> GetHistoricoEtapa(int id)
         {
-            var historicoEtapa = await _context.HistoricoEtapas.FindAsync(id);
+            var historicoEtapa = await _context.HistoricoEtapa.FindAsync(id);
 
             if (historicoEtapa == null)
             {
@@ -42,7 +42,7 @@ namespace MiniCrm.DbFirst.Controllers.Api
             return historicoEtapa;
         }
 
-        // PUT: api/HistoricoEtapas/5
+        // PUT: api/HistoricoEtapa/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutHistoricoEtapa(int id, HistoricoEtapa historicoEtapa)
@@ -73,28 +73,28 @@ namespace MiniCrm.DbFirst.Controllers.Api
             return NoContent();
         }
 
-        // POST: api/HistoricoEtapas
+        // POST: api/HistoricoEtapa
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<HistoricoEtapa>> PostHistoricoEtapa(HistoricoEtapa historicoEtapa)
         {
-            _context.HistoricoEtapas.Add(historicoEtapa);
+            _context.HistoricoEtapa.Add(historicoEtapa);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetHistoricoEtapa", new { id = historicoEtapa.IdHistorico }, historicoEtapa);
         }
 
-        // DELETE: api/HistoricoEtapas/5
+        // DELETE: api/HistoricoEtapa/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteHistoricoEtapa(int id)
         {
-            var historicoEtapa = await _context.HistoricoEtapas.FindAsync(id);
+            var historicoEtapa = await _context.HistoricoEtapa.FindAsync(id);
             if (historicoEtapa == null)
             {
                 return NotFound();
             }
 
-            _context.HistoricoEtapas.Remove(historicoEtapa);
+            _context.HistoricoEtapa.Remove(historicoEtapa);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -102,7 +102,7 @@ namespace MiniCrm.DbFirst.Controllers.Api
 
         private bool HistoricoEtapaExists(int id)
         {
-            return _context.HistoricoEtapas.Any(e => e.IdHistorico == id);
+            return _context.HistoricoEtapa.Any(e => e.IdHistorico == id);
         }
     }
 }

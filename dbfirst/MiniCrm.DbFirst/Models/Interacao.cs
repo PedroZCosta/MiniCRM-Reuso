@@ -35,10 +35,10 @@ public partial class Interacao
     public int IdUsuario { get; set; }
 
     [ForeignKey("IdCliente")]
-    [InverseProperty("Interacoes")]
+    [InverseProperty("Interacao")]
     public virtual Cliente IdClienteNavigation { get; set; }
 
     [ForeignKey("IdUsuario")]
-    [InverseProperty("Interacoes")]
+    [InverseProperty("Interacao")]
     public virtual Usuario IdUsuarioNavigation { get; set; }
 }

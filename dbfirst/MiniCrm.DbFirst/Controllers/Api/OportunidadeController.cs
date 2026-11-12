@@ -12,47 +12,47 @@ namespace MiniCrm.DbFirst.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ClientesController : ControllerBase
+    public class OportunidadeController : ControllerBase
     {
         private readonly MiniCrmContext _context;
 
-        public ClientesController(MiniCrmContext context)
+        public OportunidadeController(MiniCrmContext context)
         {
             _context = context;
         }
 
-        // GET: api/Clientes
+        // GET: api/Oportunidade
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Cliente>>> GetClientes()
+        public async Task<ActionResult<IEnumerable<Oportunidade>>> GetOportunidade()
         {
-            return await _context.Clientes.ToListAsync();
+            return await _context.Oportunidade.ToListAsync();
         }
 
-        // GET: api/Clientes/5
+        // GET: api/Oportunidade/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Cliente>> GetCliente(int id)
+        public async Task<ActionResult<Oportunidade>> GetOportunidade(int id)
         {
-            var cliente = await _context.Clientes.FindAsync(id);
+            var oportunidade = await _context.Oportunidade.FindAsync(id);
 
-            if (cliente == null)
+            if (oportunidade == null)
             {
                 return NotFound();
             }
 
-            return cliente;
+            return oportunidade;
         }
 
-        // PUT: api/Clientes/5
+        // PUT: api/Oportunidade/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCliente(int id, Cliente cliente)
+        public async Task<IActionResult> PutOportunidade(int id, Oportunidade oportunidade)
         {
-            if (id != cliente.IdCliente)
+            if (id != oportunidade.IdOportunidade)
             {
                 return BadRequest();
             }
 
-            _context.Entry(cliente).State = EntityState.Modified;
+            _context.Entry(oportunidade).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace MiniCrm.DbFirst.Controllers.Api
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ClienteExists(id))
+                if (!OportunidadeExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +73,36 @@ namespace MiniCrm.DbFirst.Controllers.Api
             return NoContent();
         }
 
-        // POST: api/Clientes
+        // POST: api/Oportunidade
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Cliente>> PostCliente(Cliente cliente)
+        public async Task<ActionResult<Oportunidade>> PostOportunidade(Oportunidade oportunidade)
         {
-            _context.Clientes.Add(cliente);
+            _context.Oportunidade.Add(oportunidade);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCliente", new { id = cliente.IdCliente }, cliente);
+            return CreatedAtAction("GetOportunidade", new { id = oportunidade.IdOportunidade }, oportunidade);
         }
 
-        // DELETE: api/Clientes/5
+        // DELETE: api/Oportunidade/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCliente(int id)
+        public async Task<IActionResult> DeleteOportunidade(int id)
         {
-            var cliente = await _context.Clientes.FindAsync(id);
-            if (cliente == null)
+            var oportunidade = await _context.Oportunidade.FindAsync(id);
+            if (oportunidade == null)
             {
                 return NotFound();
             }
 
-            _context.Clientes.Remove(cliente);
+            _context.Oportunidade.Remove(oportunidade);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool ClienteExists(int id)
+        private bool OportunidadeExists(int id)
         {
-            return _context.Clientes.Any(e => e.IdCliente == id);
+            return _context.Oportunidade.Any(e => e.IdOportunidade == id);
         }
     }
 }

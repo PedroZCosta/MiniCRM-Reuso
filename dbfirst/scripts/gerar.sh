@@ -36,7 +36,7 @@ echo "==> EF Core Scaffolding: lendo o esquema de ${DB_NAME} em ${DB_HOST}:${DB_
 dotnet ef dbcontext scaffold "$CONEXAO" Pomelo.EntityFrameworkCore.MySql \
   --project "$PROJETO" \
   --output-dir Models --context MiniCrmContext --context-dir Data \
-  --data-annotations --no-onconfiguring --force 2>&1 | grep -vE "^Build started|^Build succeeded"
+  --data-annotations --no-onconfiguring --no-pluralize --force 2>&1 | grep -vE "^Build started|^Build succeeded"
 
 # Peculiaridade do Pomelo + EF: com --data-annotations, colunas datetime(6) saem com [MaxLength(6)] e o
 # ASP.NET quebra na validação (InvalidCastException -> HTTP 500). Remove só esse atributo nos campos de data.

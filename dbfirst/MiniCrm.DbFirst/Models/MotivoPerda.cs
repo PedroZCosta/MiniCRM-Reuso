@@ -19,5 +19,5 @@ public partial class MotivoPerda
     public string Descricao { get; set; }
 
     [InverseProperty("IdMotivoPerdaNavigation")]
-    public virtual ICollection<Oportunidade> Oportunidades { get; set; } = new List<Oportunidade>();
+    public virtual ICollection<Oportunidade> Oportunidade { get; set; } = new List<Oportunidade>();
 }

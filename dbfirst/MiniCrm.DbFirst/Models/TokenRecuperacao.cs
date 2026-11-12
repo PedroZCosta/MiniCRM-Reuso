@@ -32,6 +32,6 @@ public partial class TokenRecuperacao
     public int IdUsuario { get; set; }
 
     [ForeignKey("IdUsuario")]
-    [InverseProperty("TokenRecuperacoes")]
+    [InverseProperty("TokenRecuperacao")]
     public virtual Usuario IdUsuarioNavigation { get; set; }
 }

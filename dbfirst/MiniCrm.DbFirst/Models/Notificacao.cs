@@ -37,10 +37,10 @@ public partial class Notificacao
     public int IdUsuario { get; set; }
 
     [ForeignKey("IdTarefa")]
-    [InverseProperty("Notificacoes")]
+    [InverseProperty("Notificacao")]
     public virtual Tarefa IdTarefaNavigation { get; set; }
 
     [ForeignKey("IdUsuario")]
-    [InverseProperty("Notificacoes")]
+    [InverseProperty("Notificacao")]
     public virtual Usuario IdUsuarioNavigation { get; set; }
 }
